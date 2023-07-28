@@ -17,5 +17,5 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
     
 EXPOSE 9000
 
-WORKDIR /project
+WORKDIR /var/www/html
 

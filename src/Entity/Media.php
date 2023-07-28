@@ -17,7 +17,7 @@ class Media
     #[ORM\JoinColumn(nullable: false)]
     private ?Trick $trick_id = null;
 
-    #[ORM\Column(length: 255, type: 'string', columnDefinition: "ENUM('Photo','Video')")]
+    #[ORM\Column(length: 10, type: 'string')]
     private ?string $type = null;
 
     #[ORM\Column(length: 500)]

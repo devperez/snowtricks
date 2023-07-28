@@ -28,7 +28,7 @@ class User
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $photo = null;
 
-    #[ORM\ManyToMany(targetEntity: Trick::class, mappedBy: 'user_id')]
+    #[ORM\OneToMany(targetEntity: Trick::class, mappedBy: 'user_id')]
     private Collection $tricks;
 
     #[ORM\OneToMany(mappedBy: 'user_id', targetEntity: Comment::class)]

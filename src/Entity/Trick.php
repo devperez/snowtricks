@@ -16,7 +16,7 @@ class Trick
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'tricks')]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'tricks')]
     private Collection $user_id;
 
     #[ORM\Column(length: 255)]
