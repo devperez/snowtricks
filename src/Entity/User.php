@@ -8,7 +8,6 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ORM\Table(name: '`user`')]
 class User
 {
     #[ORM\Id]
@@ -17,7 +16,7 @@ class User
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $username = null;
+    private ?string $name = null;
 
     #[ORM\Column(length: 255)]
     private ?string $password = null;
@@ -28,15 +27,19 @@ class User
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $photo = null;
 
-    #[ORM\OneToMany(targetEntity: Trick::class, mappedBy: 'user_id')]
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Trick::class)]
     private Collection $tricks;
 
-    #[ORM\OneToMany(mappedBy: 'user_id', targetEntity: Comment::class)]
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Comment::class)]
+    private Collection $trick;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Comment::class)]
     private Collection $comments;
 
     public function __construct()
     {
         $this->tricks = new ArrayCollection();
+        $this->trick = new ArrayCollection();
         $this->comments = new ArrayCollection();
     }
 
@@ -45,14 +48,14 @@ class User
         return $this->id;
     }
 
-    public function getUsername(): ?string
+    public function getName(): ?string
     {
-        return $this->username;
+        return $this->name;
     }
 
-    public function setUsername(string $username): static
+    public function setName(string $name): static
     {
-        $this->username = $username;
+        $this->name = $name;
 
         return $this;
     }
@@ -105,7 +108,7 @@ class User
     {
         if (!$this->tricks->contains($trick)) {
             $this->tricks->add($trick);
-            $trick->addUserId($this);
+            $trick->setUser($this);
         }
 
         return $this;
@@ -114,10 +117,21 @@ class User
     public function removeTrick(Trick $trick): static
     {
         if ($this->tricks->removeElement($trick)) {
-            $trick->removeUserId($this);
+            // set the owning side to null (unless already changed)
+            if ($trick->getUser() === $this) {
+                $trick->setUser(null);
+            }
         }
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, Comment>
+     */
+    public function getTrick(): Collection
+    {
+        return $this->trick;
     }
 
     /**
@@ -132,7 +146,7 @@ class User
     {
         if (!$this->comments->contains($comment)) {
             $this->comments->add($comment);
-            $comment->setUserId($this);
+            $comment->setUser($this);
         }
 
         return $this;
@@ -142,8 +156,8 @@ class User
     {
         if ($this->comments->removeElement($comment)) {
             // set the owning side to null (unless already changed)
-            if ($comment->getUserId() === $this) {
-                $comment->setUserId(null);
+            if ($comment->getUser() === $this) {
+                $comment->setUser(null);
             }
         }
 

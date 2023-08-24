@@ -15,12 +15,12 @@ class Media
 
     #[ORM\ManyToOne(inversedBy: 'media')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Trick $trick_id = null;
+    private ?trick $trick = null;
 
-    #[ORM\Column(length: 10, type: 'string')]
+    #[ORM\Column(length: 255)]
     private ?string $type = null;
 
-    #[ORM\Column(length: 500)]
+    #[ORM\Column(length: 255)]
     private ?string $media = null;
 
     public function getId(): ?int
@@ -28,14 +28,14 @@ class Media
         return $this->id;
     }
 
-    public function getTrickId(): ?Trick
+    public function getTrick(): ?trick
     {
-        return $this->trick_id;
+        return $this->trick;
     }
 
-    public function setTrickId(?Trick $trick_id): static
+    public function setTrick(?trick $trick): static
     {
-        $this->trick_id = $trick_id;
+        $this->trick = $trick;
 
         return $this;
     }

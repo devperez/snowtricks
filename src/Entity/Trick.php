@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\TrickRepository;
+use App\Entity\User;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -16,8 +17,9 @@ class Trick
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'tricks')]
-    private Collection $user_id;
+    #[ORM\ManyToOne(inversedBy: 'tricks')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?user $user = null;
 
     #[ORM\Column(length: 255)]
     private ?string $name = null;
@@ -28,15 +30,14 @@ class Trick
     #[ORM\Column(length: 255)]
     private ?string $category = null;
 
-    #[ORM\OneToMany(mappedBy: 'trick_id', targetEntity: Comment::class)]
+    #[ORM\OneToMany(mappedBy: 'trick', targetEntity: Comment::class)]
     private Collection $comments;
 
-    #[ORM\OneToMany(mappedBy: 'trick_id', targetEntity: Media::class)]
+    #[ORM\OneToMany(mappedBy: 'trick', targetEntity: Media::class)]
     private Collection $media;
 
     public function __construct()
     {
-        $this->user_id = new ArrayCollection();
         $this->comments = new ArrayCollection();
         $this->media = new ArrayCollection();
     }
@@ -46,26 +47,14 @@ class Trick
         return $this->id;
     }
 
-    /**
-     * @return Collection<int, User>
-     */
-    public function getUserId(): Collection
+    public function getUser(): ?user
     {
-        return $this->user_id;
+        return $this->user;
     }
 
-    public function addUserId(User $userId): static
+    public function setUser(?user $user): static
     {
-        if (!$this->user_id->contains($userId)) {
-            $this->user_id->add($userId);
-        }
-
-        return $this;
-    }
-
-    public function removeUserId(User $userId): static
-    {
-        $this->user_id->removeElement($userId);
+        $this->user = $user;
 
         return $this;
     }
@@ -118,7 +107,7 @@ class Trick
     {
         if (!$this->comments->contains($comment)) {
             $this->comments->add($comment);
-            $comment->setTrickId($this);
+            $comment->setTrick($this);
         }
 
         return $this;
@@ -128,8 +117,8 @@ class Trick
     {
         if ($this->comments->removeElement($comment)) {
             // set the owning side to null (unless already changed)
-            if ($comment->getTrickId() === $this) {
-                $comment->setTrickId(null);
+            if ($comment->getTrick() === $this) {
+                $comment->setTrick(null);
             }
         }
 
@@ -148,7 +137,7 @@ class Trick
     {
         if (!$this->media->contains($medium)) {
             $this->media->add($medium);
-            $medium->setTrickId($this);
+            $medium->setTrick($this);
         }
 
         return $this;
@@ -158,8 +147,8 @@ class Trick
     {
         if ($this->media->removeElement($medium)) {
             // set the owning side to null (unless already changed)
-            if ($medium->getTrickId() === $this) {
-                $medium->setTrickId(null);
+            if ($medium->getTrick() === $this) {
+                $medium->setTrick(null);
             }
         }
 
