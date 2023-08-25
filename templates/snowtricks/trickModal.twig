@@ -7,9 +7,8 @@
 				<div class="container">
 					<div class="row justify-content-center">
 						<div class="col-lg-8">
-							<div
-								class="modal-body">
-								<!-- Project details-->
+							<div class="modal-body">
+								<!-- Trick details-->
 								<h2 class="text-uppercase">{{ trick.name }}</h2>
 								<ul class="list-inline">
 									<li>
@@ -20,8 +19,8 @@
 								<p class="item-intro text-muted">{{ trick.description }}</p>
 
 								<!-- Affichage des photos -->
-								<h3>Photos</h3>
-								<div class="media-grid">
+								<h3 class="mb-3">Photos</h3>
+								<div class="media-grid mb-3">
 									{% for media in trick.media %}
 										{% if media.type == 'photo' %}
 											<img class="grid-media" src="{{ media.media }}" alt="{{ trick.name }}">
@@ -30,38 +29,64 @@
 								</div>
 
 								<!-- Affichage des vidéos -->
-								<h3>Vidéos</h3>
-								<div class="video-grid">
+								<h3 class="mb-3">Vidéos</h3>
+								<div class="video-grid mb-3">
+									{% set hasVideos = false %}
 									{% for media in trick.media %}
 										{% if media.type == 'video' %}
 											<div class="grid-video">
-												{{ media.media|raw }}
+                                                <div class="video">
+												    {{ media.media|raw }}
+                                                </div>
 											</div>
+											{% set hasVideos = true %}
 										{% endif %}
 									{% endfor %}
+
+									{% if not hasVideos %}
+										<p>Aucune vidéo pour ce trick.</p>
+									{% endif %}
 								</div>
 
 								<!-- Affichage des commentaires -->
-								<h3>Commentaires</h3>
+								<h3 class="mb-3">Commentaires</h3>
 								<div>
 									{% if trick.comments is empty %}
 										<p>Aucun commentaire pour ce trick.</p>
 									{% else %}
-										{% for comment in trick.comments %}
-											<div class="comment">
-                                            <p><strong>{{ comment.user.name }}</strong></p>
-												<p>{{ comment.comment }}</p>
+										<div class="d-flex justify-content-center">
+											<div class="col-md-8">
+												{% for comment in trick.comments %}
+													<div class="mb-5 d-flex justify-content-center">
+														<div class="card testimonial-card" style="width: 250px;">
+															<div class="card-up" style="background-color: #9d789b;"></div>
+															<div class="avatar mx-auto bg-white">
+																<img src="{{ comment.user.photo }}" class="rounded-circle img-fluid"/>
+															</div>
+															<div class="card-body">
+																<h4 class="mb-4">{{ comment.user.name }}</h4>
+																<p>le
+																	{{ comment.createdAt|date('d/m/Y à H:i') }}</p>
+																<hr/>
+																<p class="dark-grey-text mt-4">
+																	<i class="fas fa-quote-left pe-2"></i>
+																	{{ comment.comment }}
+																</p>
+															</div>
+														</div>
+													</div>
+												{% endfor %}
 											</div>
-										{% endfor %}
+										</div>
 									{% endif %}
 								</div>
-
-
-								<button class="btn btn-primary btn-xl text-uppercase" data-bs-dismiss="modal" type="button">
-									<i class="fas fa-xmark me-1"></i>
-									Fermer
-								</button>
 							</div>
+
+
+							<button class="btn btn-primary btn-xl text-uppercase" data-bs-dismiss="modal" type="button">
+								<i class="fas fa-xmark me-1"></i>
+								Fermer
+							</button>
 						</div>
 					</div>
 				</div>
