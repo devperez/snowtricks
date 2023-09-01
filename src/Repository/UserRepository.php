@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Exception;
 
 /**
  * @extends ServiceEntityRepository<User>
@@ -45,4 +46,17 @@ class UserRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+
+    public function save(User $user)
+    {
+        $entityManager = $this->getEntityManager();
+        try{
+            $entityManager->beginTransaction();
+            $entityManager->persist($user);
+            $entityManager->flush();
+            $entityManager->commit();
+        }catch(Exception $e) {
+            $entityManager->rollback();
+        }
+    }
 }
