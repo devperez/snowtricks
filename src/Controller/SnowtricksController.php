@@ -2,10 +2,11 @@
 
 namespace App\Controller;
 
+use App\Entity\Trick;
 use App\Repository\TrickRepository;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class SnowtricksController extends AbstractController
 {
@@ -23,6 +24,14 @@ class SnowtricksController extends AbstractController
         return $this->render('snowtricks/index.html.twig', [
             'controller_name' => 'SnowtricksController',
             'tricks' => $tricks
+        ]);
+    }
+
+    #[Route('/snowtricks/{id}', name: 'show')]
+    public function show(Trick $trick)
+    {
+        return $this->render('snowtricks/show.html.twig', [
+            'trick' => $trick
         ]);
     }
 }
