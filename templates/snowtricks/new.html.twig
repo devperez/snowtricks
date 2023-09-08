@@ -13,10 +13,7 @@
 				{{ form_row(trickForm.category) }}
 				<fieldset>
 					<legend>Médias</legend>
-					{% for mediaForm in trickForm.media %}
-						{{ form_row(mediaForm.type) }}
-						{{ form_row(mediaForm.media) }}
-					{% endfor %}
+						{{ form_row(trickForm.media) }}
 				</fieldset>
 				<button type="submit" class="btn btn-primary mt-4">Valider</button>
 				{{ form_end(trickForm) }}

@@ -7,6 +7,7 @@ use App\Form\MediaType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 
@@ -18,10 +19,9 @@ class TricksFormType extends AbstractType
             ->add('name', TextType::class, ['attr' => ['class' =>'form-control'], 'label' => 'Nom'])
             ->add('description', TextType::class, ['attr' => ['class' =>'form-control']])
             ->add('category', TextType::class, ['attr' => ['class' =>'form-control'], 'label' => 'Catégorie'])
-            ->add('media', CollectionType::class, [
-                'entry_type' => MediaType::class, 
-                'by_reference' => false,
-                'allow_add' => true, 
+            ->add('media', FileType::class, [
+                'multiple' => true, 
+                'attr' => ['multiple' => 'multiple', 'accept' => 'image/*,video/*'],
             ]);
         ;
     }

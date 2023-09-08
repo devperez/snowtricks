@@ -50,14 +50,15 @@ class SnowtricksController extends AbstractController
 
     /**
      * Displays trick creation form.
+     *
      * 
      * @return Response An instance of response with the form to create a new trick
      */
-    #[Route('/snowtricks/new', name:'newTrick')]
+    #[Route('/snowtricks/new', name:'newTrick', methods: ['GET'])]
     public function newTrick(): Response
     {
         $trick = new Trick();
-        
+
         $trickForm = $this->createForm(TricksFormType::class, $trick);
 
         return $this->render('snowtricks/new.html.twig', [
