@@ -1,0 +1,97 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+	<!-- Trick details-->
+	<div id="page-top" class="container pt-4">
+		<h2 class="text-uppercase text-center">{{ trick.name }}</h2>
+		<ul class="list-inline text-center">
+			<li>
+				<strong>Catégorie:</strong>
+				{{ trick.category }}
+			</li>
+			<li>
+				<p class="text-muted">{{ trick.description }}</p>
+			</li>
+		</ul>
+
+		<div class="container mt-4 mb-4">
+			<div class="card">
+				<h3 class="card-header text-center">Photos</h3>
+				<div class="card-body">
+					<div class="media-grid mb-3">
+						{% for media in trick.media %}
+							{% if media.type == 'photo' %}
+								<img class="grid-media" src="{{ media.media }}" alt="{{ trick.name }}">
+							{% endif %}
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Affichage des vidéos -->
+		<div class="container mb-4">
+			<div class="card">
+				<h3 class="card-header text-center">Vidéos</h3>
+				<div class="card-body">
+					<div class="video-grid mb-3">
+						{% set hasVideos = false %}
+						{% for media in trick.media %}
+							{% if media.type == 'video' %}
+								<div class="grid-video">
+									<div class="video">
+										{{ media.media|raw }}
+									</div>
+								</div>
+								{% set hasVideos = true %}
+							{% endif %}
+						{% endfor %}
+
+						{% if not hasVideos %}
+							<p>Aucune vidéo pour ce trick.</p>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Affichage des commentaires -->
+		<div class="container mb-4">
+			<h3>Commentaires</h3>
+				<div class="mt-4">
+					{% if trick.comments is empty %}
+						<p>Aucun commentaire pour ce trick.</p>
+					{% else %}
+						<div class="d-flex">
+							<div class="col-md-8">
+								{% for comment in trick.comments %}
+									<div class="mb-5 d-flex">
+										<div class="card testimonial-card" style="width: 250px;">
+											<div class="card-up" style="background-color: #9d789b;"></div>
+											<div class="avatar mx-auto bg-white">
+												<img src="{{ comment.user.photo }}" class="rounded-circle img-fluid"/>
+											</div>
+											<div class="card-body">
+												<h4 class="mb-4">{{ comment.user.name }}</h4>
+												<p>le
+													{{ comment.createdAt|date('d/m/Y à H:i') }}</p>
+												<hr/>
+												<p class="dark-grey-text mt-4">
+													<i class="fas fa-quote-left pe-2"></i>
+													{{ comment.comment }}
+												</p>
+											</div>
+										</div>
+									</div>
+								{% endfor %}
+							</div>
+						</div>
+					{% endif %}
+				</div=>
+			</div>
+            <div class="mt-4 pb-4 text-center">
+                <a class="btn btn-primary btn-xl text-uppercase" href="{{ path('app_snowtricks') }}">Voir les autres tricks !</a>
+            </div>
+        </div>
+    </div>
+		{% endblock %}

@@ -1,11 +1,17 @@
-version: '3.7'
+version: '3.8'
+
 services:
   web:
-    image: php:8.2-fpm
+    build:
+      context: .
     volumes:
       - .:/var/www/html
+    environment:
+      DATABASE_URL: mysql://snowtrick:password@db:3306/snowtricks
     networks:
       - app-network
+    depends_on:
+      - db
 
   nginx:
     image: nginx:latest
@@ -13,6 +19,7 @@ services:
       - 8888:80
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./public:/var/www/html/public
     depends_on:
       - web
     networks:
@@ -22,7 +29,9 @@ services:
     image: mysql:5.7
     environment:
       MYSQL_DATABASE: snowtricks
-      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+      MYSQL_USER: snowtrick
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
     networks:
       - app-network
 
@@ -33,7 +42,9 @@ services:
     environment:
       PMA_HOST: db
       PMA_PORT: 3306
-      MYSQL_ROOT_PASSWORD: ''
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_USER: snowtrick
+      MYSQL_PASSWORD: password
     depends_on:
       - db
     networks:
