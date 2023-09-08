@@ -16,8 +16,7 @@
 							<div class="trick-item">
 								<a class="trick-link" href="{{ path('show',{'id':trick.id}) }}">
 									<div class="trick-hover">
-										<div
-											class="trick-hover-content">
+										<div class="trick-hover-content">
 											{# <i class="fas fa-plus fa-3x"></i> #}
 											{% for media in trick.media %}
 												{% if loop.first and media.type == 'photo' %}
@@ -28,7 +27,11 @@
 									</div>
 								</a>
 								<div class="trick-caption">
-									<div class="trick-caption-heading">{{ trick.name }}</div>
+									<div class="trick-caption-heading">{{ trick.name }}
+										{% if app.user %}
+											<i class="fa-solid fa-pencil pencil" style="cursor:pointer" title="Modifier cet article"></i>
+										{% endif %}
+									</div>
 								</div>
 							</div>
 						</div>
@@ -36,6 +39,11 @@
 				</div>
 			</div>
 		</section>
+			{% if app.user %}
+			<div class="container text-center">
+				<a class="btn btn-primary btn-xl text-uppercase" href="{{ path('newTrick') }}">Créer un nouveau trick !</a>
+			</div>
+			{% endif %}
 	</body>
 	
 {% endblock %}

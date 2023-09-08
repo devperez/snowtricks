@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+	<div class="container pt-4">
+		<div class="row">
+			<div class="col">
+				<h1 class="h3 mb-3 font-weight-normal">Créez un nouveau trick :</h1>
+
+				{{ form_start(trickForm) }}
+				{{ form_row(trickForm.name) }}
+				{{ form_row(trickForm.description) }}
+				{{ form_row(trickForm.category) }}
+				<fieldset>
+					<legend>Médias</legend>
+					{% for mediaForm in trickForm.media %}
+						{{ form_row(mediaForm.type) }}
+						{{ form_row(mediaForm.media) }}
+					{% endfor %}
+				</fieldset>
+				<button type="submit" class="btn btn-primary mt-4">Valider</button>
+				{{ form_end(trickForm) }}
+			</div>
+		</div>
+	</div>
+
+{% endblock %}

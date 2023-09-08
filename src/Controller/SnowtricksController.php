@@ -2,7 +2,10 @@
 
 namespace App\Controller;
 
+use App\Entity\Media;
 use App\Entity\Trick;
+use App\Form\MediaType;
+use App\Form\TricksFormType;
 use App\Repository\TrickRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -46,6 +49,23 @@ class SnowtricksController extends AbstractController
     }
 
     /**
+     * Displays trick creation form.
+     * 
+     * @return Response An instance of response with the form to create a new trick
+     */
+    #[Route('/snowtricks/new', name:'newTrick')]
+    public function newTrick(): Response
+    {
+        $trick = new Trick();
+        
+        $trickForm = $this->createForm(TricksFormType::class, $trick);
+
+        return $this->render('snowtricks/new.html.twig', [
+            'trickForm' => $trickForm->createView(),
+        ]);
+    }
+
+    /**
      * Displays the page of a trick.
      * 
      * @param Trick $trick The Trick object corresponding to the id in the URL.
@@ -59,4 +79,5 @@ class SnowtricksController extends AbstractController
             'trick' => $trick
         ]);
     }
+
 }

@@ -4,6 +4,9 @@
 	<!-- Trick details-->
 	<div id="page-top" class="container pt-4">
 		<h2 class="text-uppercase text-center">{{ trick.name }}</h2>
+		{% if app.user %}
+			<i class="fa-solid fa-pencil pencil" style="cursor:pointer" title="Modifier cet article"></i>
+		{% endif %}
 		<ul class="list-inline text-center">
 			<li>
 				<strong>Catégorie:</strong>
