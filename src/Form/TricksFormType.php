@@ -9,7 +9,6 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 
 class TricksFormType extends AbstractType
 {
@@ -21,6 +20,7 @@ class TricksFormType extends AbstractType
             ->add('category', TextType::class, ['attr' => ['class' =>'form-control'], 'label' => 'Catégorie'])
             ->add('media', FileType::class, [
                 'multiple' => true, 
+                'mapped' =>false,
                 'attr' => ['multiple' => 'multiple', 'accept' => 'image/*,video/*'],
             ]);
         ;
