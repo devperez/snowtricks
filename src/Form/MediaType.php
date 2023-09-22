@@ -8,6 +8,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\Image;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 
 class MediaType extends AbstractType
@@ -22,6 +23,12 @@ class MediaType extends AbstractType
                         'maxSize' => '5M',
                     ]),
                 ],
+            ])
+            ->add('video', TextType::class, [
+                'attr' => [
+                    'class' => 'form-control'
+                ],
+                'label' => "Code d'intégration de la vidéo"
             ])
         ;
     }

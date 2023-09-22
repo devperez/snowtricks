@@ -7,13 +7,17 @@ use App\Entity\Trick;
 use App\Form\MediaType;
 use App\Form\TricksFormType;
 use App\Repository\TrickRepository;
+use Symfony\Component\Mime\MimeTypes;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+
 
 /**
  * SnowtricksController handles the pages concerning snowboard tricks.
@@ -25,15 +29,16 @@ class SnowtricksController extends AbstractController
      * @var TrickRepository
      */
     private $trickRepository;
-
+    private $security;
     /**
      * SnowtricksController class constructor
      * 
      * @param TrickRepository $trickRepository The trick repository injected through dependency injection.
      */
-    public function __construct(TrickRepository $trickRepository)
+    public function __construct(TrickRepository $trickRepository, Security $security)
     {
         $this->trickRepository = $trickRepository;
+        $this->security = $security;
     }
 
     /**
@@ -62,90 +67,88 @@ class SnowtricksController extends AbstractController
      * @return Response HTTP response to redirect the user after the trick creation
      */
     #[Route('snowtrick/create', name:'createTrick', methods: ['POST'])]
-    // public function createNewTrick(Request $request, EntityManagerInterface $emi): Response
-    // {
-    //     $trick = new Trick();
-
-    //     $trickForm = $this->createForm(TricksFormType::class);
-    //     $user = $this->getUser();
-    //     $trickForm->handleRequest($request);
-        
-    //     if($trickForm->isSubmitted() && $trickForm->isValid())
-    //     {
-    //         $trick->setUser($user);
-    //         $emi->persist($trick);
-    //         //$emi->flush();
-
-    //         $mediaForm = $this->createForm(MediaType::class);
-    //         $mediaForm->handleRequest($request);
-
-    //         dd($mediaForm);
-    //         $this->addFlash('success', 'Votre trick a bien été créé !');
-
-    //         return $this->redirectToRoute('app_snowtricks');
-    //     }
-    //     $this->addflash('danger', 'Il y a eu un problème lors de la création de votre trick.');
-        
-    //     return $this->render('snowtricks/new.html.twig',[
-    //         'trickForm' => $trickForm->createView(),
-    //     ]);
-    // }
-
     public function createNewTrick(Request $request, EntityManagerInterface $emi): Response
-{
-    $trick = new Trick();
-    $user = $this->getUser();
-
-    $trickForm = $this->createForm(TricksFormType::class);
-    $trickForm->handleRequest($request);
-
-    if ($trickForm->isSubmitted() && $trickForm->isValid()) {
-        $trick->setUser($user);
-        $trick->setName($trickForm->get('name')->getData());
-        $trick->setDescription($trickForm->get('description')->getData());
-        $trick->setCategory($trickForm->get('category')->getData());
-        $emi->persist($trick);
-
-        $media = $trickForm['media']->getData();
-        //faire condition pour vérifier si c'est une image
-        if (strstr($media['mimeType'], 'image/') !== false) {
-            dd($media);
-            $media = $mediaForm->getData();
-            $mediaFile = $mediaForm->get('media')->getData();
-
-            $destination = '/public/images';
-            $originalFilename = pathinfo($mediaFile->getClientOriginalName(), PATHINFO_FILENAME);
-            $newFilename = $originalFilename.'-'.uniqid().'.'.$mediaFile->guessExtension();
-
-            try {
-                $mediaFile->move(
-                    $destination,
-                    $newFilename
-                );
-            } catch (FileException $e) {
-                // Gérer les erreurs liées au déplacement du fichier
-            }
-
-            
-            $media->setFileName($newFilename);
-
-            $emi->persist($media);
+    {
+        if (!$this->security->isGranted('ROLE_USER')) {
+            throw new AccessDeniedException('Accès refusé. Vous n\'avez pas les autorisations nécessaires.');
         }
 
-        $emi->flush();
+        $trick = new Trick();
+        $user = $this->getUser();
+    
+        $trickForm = $this->createForm(TricksFormType::class);
+        $trickForm->handleRequest($request);
+    
+        if ($trickForm->isSubmitted() && $trickForm->isValid()) {
+            $trick->setUser($user);
+            $trick->setName($trickForm->get('name')->getData());
+            $trick->setDescription($trickForm->get('description')->getData());
+            $trick->setCategory($trickForm->get('category')->getData());
+            $emi->persist($trick);
+    
+            $mediaFiles = $trickForm['media']->getData();
+    
+            foreach ($mediaFiles as $media) {
+                if ($media) {
+                    $mimeTypes = new MimeTypes();
+                    $mime = $mimeTypes->guessMimeType($media->getPathname());
+    
+                    if (str_starts_with($mime, 'image/')) {
+                        //dd($mime);
+                        $destination = $this->getParameter('kernel.project_dir') . '/public/images';
+                        $filesystem = new Filesystem();
+                        if(!$filesystem->exists($destination))
+                        {
+                            $filesystem->mkdir($destination, 0777);
+                        }
+                        $originalFilename = pathinfo($media->getClientOriginalName(), PATHINFO_FILENAME);
+                        $newFilename = $originalFilename . '-' . uniqid() . '.' . $media->guessExtension();
+                        //dd($originalFilename, $newFilename);
+                        try {
+                            $media->move(
+                                $destination,
+                                $newFilename
+                            );
+    
+                            $media = new Media();
+                            $media->setTrick($trick);
+                            $media->setType('photo');
+                            $media->setMedia($destination . '/' . $newFilename);
+    
+                            $emi->persist($media);
+                        } catch (FileException $e) {
+                            // Gérer les erreurs liées au déplacement du fichier
+                            dd($e);
+                        }
+                    }
+                }
+            }
 
-        $this->addFlash('success', 'Votre trick a bien été créé !');
+            $video = $trickForm['video']->getData();
+            if ($video)
+            {
+                //dd($video);
+                $media = new Media();
+                $media->setTrick($trick);
+                $media->setType('video');
+                $media->setMedia($video);
 
-        return $this->redirectToRoute('app_snowtricks');
+                $emi->persist($media);
+            }
+
+            $emi->flush();
+    
+            $this->addFlash('success', 'Votre trick a bien été créé !');
+    
+            return $this->redirectToRoute('app_snowtricks');
+        } else {
+            $this->addFlash('danger', 'Il y a eu un problème lors de la création de votre trick.');
+        }
+    
+        return $this->render('snowtricks/new.html.twig', [
+            'trickForm' => $trickForm->createView()
+        ]);
     }
-
-    $this->addFlash('danger', 'Il y a eu un problème lors de la création de votre trick.');
-
-    return $this->render('snowtricks/new.html.twig', [
-        'trickForm' => $trickForm->createView(),
-        'mediaForm' => $mediaForm->createView(),
-    ]);
-}
 
     /**
      * Displays trick creation form.
@@ -155,6 +158,10 @@ class SnowtricksController extends AbstractController
     #[Route('/snowtricks/new', name:'newTrick', methods: ['GET'])]
     public function newTrick(): Response
     {
+        if (!$this->security->isGranted('ROLE_USER')) {
+            throw new AccessDeniedException('Accès refusé. Vous n\'avez pas les autorisations nécessaires.');
+        }
+
         $trick = new Trick();
 
         $trickForm = $this->createForm(TricksFormType::class, $trick);

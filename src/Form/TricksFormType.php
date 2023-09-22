@@ -22,7 +22,11 @@ class TricksFormType extends AbstractType
                 'multiple' => true, 
                 'mapped' =>false,
                 'attr' => ['multiple' => 'multiple', 'accept' => 'image/*,video/*'],
-            ]);
+            ])
+            ->add('video', TextType::class, [
+                'attr' => ['class' => 'form-control'],
+                'label' => "Code d'intégration de la vidéo",
+            ])
         ;
     }
 

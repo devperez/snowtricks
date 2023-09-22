@@ -162,4 +162,16 @@ class Trick
 
         return $this;
     }
+
+    private $video;
+
+    public function getVideo()
+    {
+        return $this->video;
+    }
+
+    public function setVideo($video)
+    {
+        $this->video = $video;
+    }
 }
