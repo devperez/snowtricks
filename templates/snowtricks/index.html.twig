@@ -30,6 +30,7 @@
 										<div class="trick-hover-content">
 											{# <i class="fas fa-plus fa-3x"></i> #}
 											{% for media in trick.media %}
+											{# {{ dump(media.getMedia()) }} #}
 												{% if loop.first and media.type == 'photo' %}
 													<img class="grid-media" src="{{ asset(media.getMedia()) }}" alt="">
 												{% endif %}

@@ -96,6 +96,8 @@ class SnowtricksController extends AbstractController
                     if (str_starts_with($mime, 'image/')) {
                         //dd($mime);
                         $destination = $this->getParameter('kernel.project_dir') . '/public/images';
+                        //dd($destination);
+                        $relativePath = '/images';
                         $filesystem = new Filesystem();
                         if(!$filesystem->exists($destination))
                         {
@@ -113,7 +115,7 @@ class SnowtricksController extends AbstractController
                             $media = new Media();
                             $media->setTrick($trick);
                             $media->setType('photo');
-                            $media->setMedia($destination . '/' . $newFilename);
+                            $media->setMedia($relativePath . '/' . $newFilename);
     
                             $emi->persist($media);
                         } catch (FileException $e) {
