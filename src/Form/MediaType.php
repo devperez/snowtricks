@@ -28,7 +28,8 @@ class MediaType extends AbstractType
                 'attr' => [
                     'class' => 'form-control'
                 ],
-                'label' => "Code d'intégration de la vidéo"
+                'label' => "Code d'intégration de la vidéo",
+                'required' => false
             ])
         ;
     }

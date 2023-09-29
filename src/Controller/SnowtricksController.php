@@ -7,6 +7,7 @@ use App\Entity\Trick;
 use App\Form\MediaType;
 use App\Form\TricksFormType;
 use App\Repository\TrickRepository;
+use Doctrine\ORM\EntityManager;
 use Symfony\Component\Mime\MimeTypes;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -73,83 +74,87 @@ class SnowtricksController extends AbstractController
             throw new AccessDeniedException('Accès refusé. Vous n\'avez pas les autorisations nécessaires.');
         }
 
-        $trick = new Trick();
-        $user = $this->getUser();
-    
+        $emi->beginTransaction();
         $trickForm = $this->createForm(TricksFormType::class);
-        $trickForm->handleRequest($request);
+
+        try {
+
+            $trick = new Trick();
+            $user = $this->getUser();
     
-        if ($trickForm->isSubmitted() && $trickForm->isValid()) {
-            $trick->setUser($user);
-            $trick->setName($trickForm->get('name')->getData());
-            $trick->setDescription($trickForm->get('description')->getData());
-            $trick->setCategory($trickForm->get('category')->getData());
-            $emi->persist($trick);
+            $trickForm->handleRequest($request);
     
-            $mediaFiles = $trickForm['media']->getData();
+            if ($trickForm->isSubmitted() && $trickForm->isValid()) {
+                $trick->setUser($user);
+                $trick->setName($trickForm->get('name')->getData());
+                $trick->setDescription($trickForm->get('description')->getData());
+                $trick->setCategory($trickForm->get('category')->getData());
+                $emi->persist($trick);
     
-            foreach ($mediaFiles as $media) {
-                if ($media) {
-                    $mimeTypes = new MimeTypes();
-                    $mime = $mimeTypes->guessMimeType($media->getPathname());
+                $mediaFiles = $trickForm['media']->getData();
     
-                    if (str_starts_with($mime, 'image/')) {
-                        //dd($mime);
-                        $destination = $this->getParameter('kernel.project_dir') . '/public/images';
-                        //dd($destination);
-                        $relativePath = '/images';
-                        $filesystem = new Filesystem();
-                        if(!$filesystem->exists($destination))
-                        {
-                            $filesystem->mkdir($destination, 0777);
-                        }
-                        $originalFilename = pathinfo($media->getClientOriginalName(), PATHINFO_FILENAME);
-                        $newFilename = $originalFilename . '-' . uniqid() . '.' . $media->guessExtension();
-                        //dd($originalFilename, $newFilename);
-                        try {
-                            $media->move(
-                                $destination,
-                                $newFilename
-                            );
+                foreach ($mediaFiles as $media) {
+                    if ($media) {
+                        $mimeTypes = new MimeTypes();
+                        $mime = $mimeTypes->guessMimeType($media->getPathname());
     
-                            $media = new Media();
-                            $media->setTrick($trick);
-                            $media->setType('photo');
-                            $media->setMedia($relativePath . '/' . $newFilename);
+                        if (str_starts_with($mime, 'image/')) {
+                            //dd($mime);
+                            $destination = $this->getParameter('kernel.project_dir') . '/public/images';
+                            //dd($destination);
+                            $relativePath = '/images';
+                            $filesystem = new Filesystem();
+                            if(!$filesystem->exists($destination))
+                            {
+                                $filesystem->mkdir($destination, 0777);
+                            }
+                            $originalFilename = pathinfo($media->getClientOriginalName(), PATHINFO_FILENAME);
+                            $newFilename = $originalFilename . '-' . uniqid() . '.' . $media->guessExtension();
+                            //dd($originalFilename, $newFilename);
+                            try {
+                                $media->move(
+                                    $destination,
+                                    $newFilename
+                                );
     
-                            $emi->persist($media);
-                        } catch (FileException $e) {
-                            // Gérer les erreurs liées au déplacement du fichier
-                            dd($e);
+                                $media = new Media();
+                                $media->setTrick($trick);
+                                $media->setType('photo');
+                                $media->setMedia($relativePath . '/' . $newFilename);
+    
+                                $emi->persist($media);
+                            } catch (FileException $e) {
+                                $this->addFlash('danger', "Il y a eu un problème lors de l'enregistrement de votre fichier.");
+                            }
                         }
                     }
                 }
-            }
 
-            $video = $trickForm['video']->getData();
-            if ($video)
-            {
-                //dd($video);
-                $media = new Media();
-                $media->setTrick($trick);
-                $media->setType('video');
-                $media->setMedia($video);
+                $video = $trickForm['video']->getData();
+                
+                if ($video)
+                {
+                    $media = new Media();
+                    $media->setTrick($trick);
+                    $media->setType('video');
+                    $media->setMedia($video);
+                    $emi->persist($media);
+                }
 
-                $emi->persist($media);
-            }
-
-            $emi->flush();
+                $emi->flush();
+                $emi->commit();
     
-            $this->addFlash('success', 'Votre trick a bien été créé !');
+                $this->addFlash('success', 'Votre trick a bien été créé !');
     
-            return $this->redirectToRoute('app_snowtricks');
-        } else {
+                return $this->redirectToRoute('app_snowtricks');
+            }
+        } catch (\Exception $e) {
+            $emi->rollback();
             $this->addFlash('danger', 'Il y a eu un problème lors de la création de votre trick.');
+            return $this->render('snowtricks/new.html.twig', [
+                'trickForm' => $trickForm->createView()
+            ]);
         }
-    
-        return $this->render('snowtricks/new.html.twig', [
-            'trickForm' => $trickForm->createView()
-        ]);
     }
 
     /**
@@ -185,6 +190,42 @@ class SnowtricksController extends AbstractController
     public function show(Trick $trick): Response
     {
         return $this->render('snowtricks/show.html.twig', [
+            'trick' => $trick
+        ]);
+    }
+
+    /**
+     * Deletes a trick
+     * 
+     * @param Trick $trick The trick object to be deleted
+     * 
+     * @return Response An instance of response with the homepage
+     */
+    #[Route('/snowtricks/delete/{id}', name:'delete')]
+    public function delete(EntityManagerInterface $emi, Trick $trick): Response
+    {
+        $emi->remove($trick);
+        $emi->flush();
+
+        $this->addFlash('success', 'Votre trick a bien été supprimé !');
+
+        return $this->redirectToRoute('app_snowtricks');
+    }
+
+    /**
+     * Edits a trick
+     * 
+     * @param Trick $trick The trick object to be edited
+     * 
+     * @return Response An instance of response with the homepage
+     */
+    #[Route('/snowtricks/edit/{id}', name:'edit')]
+    public function edit(Trick $trick): Response
+    {
+        $trickForm = $this->createForm(TricksFormType::class, $trick);
+        
+        return $this->render('snowtricks/edit.html.twig', [
+            'trickForm' => $trickForm->createView(),
             'trick' => $trick
         ]);
     }

@@ -21,7 +21,7 @@ class TricksFormType extends AbstractType
             ->add('media', FileType::class, [
                 'multiple' => true, 
                 'mapped' =>false,
-                'attr' => ['multiple' => 'multiple', 'accept' => 'image/*,video/*'],
+                'attr' => ['multiple' => 'multiple', 'accept' => 'image/*'],
             ])
             ->add('video', TextType::class, [
                 'attr' => ['class' => 'form-control'],

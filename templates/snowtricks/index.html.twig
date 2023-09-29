@@ -40,8 +40,9 @@
 								</a>
 								<div class="trick-caption">
 									<div class="trick-caption-heading">{{ trick.name }}
-										{% if app.user %}
-											<i class="fa-solid fa-pencil pencil" style="cursor:pointer" title="Modifier cet article"></i>
+										{% if app.user.id == trick.user.id %}
+											<img src="/assets/img/trash-solid.svg" class="delete" data-id="{{ trick.id }}" title="Supprimer cet article" style="margin-left:15px; cursor:pointer"></img>
+											{# <p class="delete" data-id="{{ trick.id }}" style="cursor:pointer">Supprimer</p> #}
 										{% endif %}
 									</div>
 								</div>
@@ -57,5 +58,4 @@
 			</div>
 			{% endif %}
 	</body>
-	
 {% endblock %}
