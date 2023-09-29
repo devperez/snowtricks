@@ -39,13 +39,12 @@
 									</div>
 								</a>
 								<div class="trick-caption">
-									<div class="trick-caption-heading">{{ trick.name }}
+									<div class="trick-caption-heading">
 										{% if app.user.id == trick.user.id %}
-										<div class="delete" data-id="{{ trick.id }}">
+										<div class="delete d-flex justify-content-between" data-id="{{ trick.id }}">
+										{{ trick.name }}
 											<i class="fa-solid fa-trash" style="cursor:pointer"></i>
 										</div>
-											{# <img src="/assets/img/trash-solid.svg" class="delete" data-id="{{ trick.id }}" title="Supprimer cet article" style="margin-left:15px; cursor:pointer"></img> #}
-											{# <p class="delete" data-id="{{ trick.id }}" style="cursor:pointer">Supprimer</p> #}
 										{% endif %}
 									</div>
 								</div>
