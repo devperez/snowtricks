@@ -41,7 +41,10 @@
 								<div class="trick-caption">
 									<div class="trick-caption-heading">{{ trick.name }}
 										{% if app.user.id == trick.user.id %}
-											<img src="/assets/img/trash-solid.svg" class="delete" data-id="{{ trick.id }}" title="Supprimer cet article" style="margin-left:15px; cursor:pointer"></img>
+										<div class="delete" data-id="{{ trick.id }}">
+											<i class="fa-solid fa-trash" style="cursor:pointer"></i>
+										</div>
+											{# <img src="/assets/img/trash-solid.svg" class="delete" data-id="{{ trick.id }}" title="Supprimer cet article" style="margin-left:15px; cursor:pointer"></img> #}
 											{# <p class="delete" data-id="{{ trick.id }}" style="cursor:pointer">Supprimer</p> #}
 										{% endif %}
 									</div>

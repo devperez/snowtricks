@@ -4,13 +4,12 @@
 	<!-- Trick details-->
 	<div id="page-top" class="container pt-4">
 		<h2 class="text-uppercase text-center">{{ trick.name }}</h2>
-		{# {% if app.user %}
-			<i class="fa-solid fa-pencil pencil" style="cursor:pointer" title="Modifier cet article"></i>
-		{% endif %} #}
 		{% if app.user and app.user.id == trick.user.id %}
-			{# <i class="fa-solid fa-pencil pencil edit" data-id="{{ trick.id }}" style="cursor:pointer" title="Modifier cet article"></i> #}
-			{# <p class="edit" data-id="{{ trick.id }}" style="cursor:pointer">Éditer</p> #}
-			<img src="/assets/img/pen-solid.svg" class="edit" data-id="{{ trick.id }}" title="Éditer ce trick" style="cursor:pointer">
+			<div class="edit" data-id="{{ trick.id }}">
+				<a href="{{ path('edit', {'id': trick.id}) }}">
+					<i class="fa-solid fa-pencil pencil"  style="cursor:pointer" title="Modifier cet article"></i>
+				</a
+			</div>
 		{% endif %}
 		<ul class="list-inline text-center">
 			<li>

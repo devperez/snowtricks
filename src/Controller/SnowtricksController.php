@@ -6,6 +6,7 @@ use App\Entity\Media;
 use App\Entity\Trick;
 use App\Form\MediaType;
 use App\Form\TricksFormType;
+use App\Repository\MediaRepository;
 use App\Repository\TrickRepository;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\Mime\MimeTypes;
@@ -220,13 +221,14 @@ class SnowtricksController extends AbstractController
      * @return Response An instance of response with the homepage
      */
     #[Route('/snowtricks/edit/{id}', name:'edit')]
-    public function edit(Trick $trick): Response
+    public function edit(Trick $trick, MediaRepository $mediaRepository): Response
     {
         $trickForm = $this->createForm(TricksFormType::class, $trick);
-        
+        $media = $mediaRepository->findBy(['trick' => $trick]);
         return $this->render('snowtricks/edit.html.twig', [
             'trickForm' => $trickForm->createView(),
-            'trick' => $trick
+            'trick' => $trick,
+            'media' => $media
         ]);
     }
 
