@@ -205,6 +205,7 @@ class SnowtricksController extends AbstractController
     #[Route('/snowtricks/delete/{id}', name:'delete')]
     public function delete(EntityManagerInterface $emi, Trick $trick): Response
     {
+        // TODO : fetch the media on the hard drive
         $emi->remove($trick);
         $emi->flush();
 

@@ -24,13 +24,13 @@ class MediaType extends AbstractType
                     ]),
                 ],
             ])
-            ->add('video', TextType::class, [
-                'attr' => [
-                    'class' => 'form-control'
-                ],
-                'label' => "Code d'intégration de la vidéo",
-                'required' => false
-            ])
+            // ->add('video', TextType::class, [
+            //     'attr' => [
+            //         'class' => 'form-control'
+            //     ],
+            //     'label' => "Code d'intégration de la vidéo",
+            //     'required' => false
+            // ])
         ;
     }
 
