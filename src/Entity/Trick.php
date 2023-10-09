@@ -38,7 +38,7 @@ class Trick
     #[Assert\NotBlank(message: "La catégorie du trick ne peut pas être vide.")]
     private ?string $category = null;
 
-    #[ORM\OneToMany(mappedBy: 'trick', targetEntity: Comment::class)]
+    #[ORM\OneToMany(mappedBy: 'trick', cascade:["remove"], targetEntity: Comment::class)]
     private Collection $comments;
 
     #[ORM\OneToMany(mappedBy: 'trick', cascade:["remove"], targetEntity: Media::class)]
@@ -173,5 +173,12 @@ class Trick
     public function setVideo($video)
     {
         $this->video = $video;
+    }
+
+    private $filename;
+
+    public function getFilename()
+    {
+        return $this->media;
     }
 }

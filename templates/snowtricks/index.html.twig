@@ -40,12 +40,12 @@
 								</a>
 								<div class="trick-caption">
 									<div class="trick-caption-heading">
-										{% if app.user.id == trick.user.id %}
 										<div class="delete d-flex justify-content-between" data-id="{{ trick.id }}">
-										{{ trick.name }}
-											<i class="fa-solid fa-trash" style="cursor:pointer"></i>
+											{{ trick.name }}
+											{% if app.user is not null and app.user.id is same as trick.user.id %}
+												<i class="fa-solid fa-trash" style="cursor:pointer"></i>
+											{% endif %}
 										</div>
-										{% endif %}
 									</div>
 								</div>
 							</div>

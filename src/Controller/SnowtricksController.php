@@ -205,12 +205,31 @@ class SnowtricksController extends AbstractController
     #[Route('/snowtricks/delete/{id}', name:'delete')]
     public function delete(EntityManagerInterface $emi, Trick $trick): Response
     {
+        if (!$this->security->isGranted('ROLE_USER')) {
+            throw new AccessDeniedException('Accès refusé. Vous n\'avez pas les autorisations nécessaires.');
+        }
         // TODO : fetch the media on the hard drive
-        $emi->remove($trick);
-        $emi->flush();
-
-        $this->addFlash('success', 'Votre trick a bien été supprimé !');
-
+        $mediaCollection = $trick->getMedia();
+        $mediaCollection->initialize();
+        //dd($mediaCollection);
+        // $mediaDirectory = '/images';
+        foreach ($mediaCollection as $medium)
+        {
+            $mediumType = $medium->getType();
+            if($mediumType === 'photo')
+            {
+                //$fileName = $medium->getMedia();
+                $filePath = $this->getParameter('kernel.project_dir') . '/public' . $medium->getMedia();
+                // dd($filePath);
+                if (file_exists($filePath))
+                {
+                    unlink($filePath);
+                }
+            }
+            $emi->remove($trick);
+            $emi->flush();
+            $this->addFlash('success', 'Votre trick a bien été supprimé !');
+        }
         return $this->redirectToRoute('app_snowtricks');
     }
 
@@ -224,6 +243,10 @@ class SnowtricksController extends AbstractController
     #[Route('/snowtricks/edit/{id}', name:'edit')]
     public function edit(Trick $trick, MediaRepository $mediaRepository): Response
     {
+        if (!$this->security->isGranted('ROLE_USER')) {
+            throw new AccessDeniedException('Accès refusé. Vous n\'avez pas les autorisations nécessaires.');
+        }
+
         $trickForm = $this->createForm(TricksFormType::class, $trick);
         $media = $mediaRepository->findBy(['trick' => $trick]);
         return $this->render('snowtricks/edit.html.twig', [
