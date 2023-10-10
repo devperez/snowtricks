@@ -19,7 +19,7 @@ class TricksFormType extends AbstractType
             ->add('description', TextType::class, ['attr' => ['class' =>'form-control']])
             ->add('category', TextType::class, ['attr' => ['class' =>'form-control'], 'label' => 'Catégorie'])
             ->add('media', FileType::class, [
-                'multiple' => true, 
+                'multiple' => true,
                 'mapped' =>false,
                 'attr' => ['multiple' => 'multiple', 'accept' => 'image/*'],
             ])

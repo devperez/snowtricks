@@ -208,19 +208,17 @@ class SnowtricksController extends AbstractController
         if (!$this->security->isGranted('ROLE_USER')) {
             throw new AccessDeniedException('Accès refusé. Vous n\'avez pas les autorisations nécessaires.');
         }
-        // TODO : fetch the media on the hard drive
+
         $mediaCollection = $trick->getMedia();
         $mediaCollection->initialize();
-        //dd($mediaCollection);
-        // $mediaDirectory = '/images';
+        
         foreach ($mediaCollection as $medium)
         {
             $mediumType = $medium->getType();
             if($mediumType === 'photo')
             {
-                //$fileName = $medium->getMedia();
                 $filePath = $this->getParameter('kernel.project_dir') . '/public' . $medium->getMedia();
-                // dd($filePath);
+
                 if (file_exists($filePath))
                 {
                     unlink($filePath);
@@ -234,11 +232,12 @@ class SnowtricksController extends AbstractController
     }
 
     /**
-     * Edits a trick
+     * Displays the form to edit a trick
      * 
      * @param Trick $trick The trick object to be edited
+     * @param MediaRepository $mediaRapository The media associated to the trick
      * 
-     * @return Response An instance of response with the homepage
+     * @return Response An instance of response with the form page
      */
     #[Route('/snowtricks/edit/{id}', name:'edit')]
     public function edit(Trick $trick, MediaRepository $mediaRepository): Response
@@ -249,11 +248,61 @@ class SnowtricksController extends AbstractController
 
         $trickForm = $this->createForm(TricksFormType::class, $trick);
         $media = $mediaRepository->findBy(['trick' => $trick]);
+        
         return $this->render('snowtricks/edit.html.twig', [
             'trickForm' => $trickForm->createView(),
             'trick' => $trick,
-            'media' => $media
+            'media' => $media,
         ]);
     }
 
+    /**
+     * Edits the trick
+     * 
+     * @param Trick $trick The trick object to be edited
+     * @param Request $request The data sent in the form
+     * @param EntityManagerInterface $emi Needed to persist the changes in the database
+     * 
+     * @return Response An instance of response with the homepage
+     */
+    #[Route('/snowtricks/store/{id}', name:"store")]
+    public function store(Trick $trick, Request $request, EntityManagerInterface $emi): Response
+    {
+        // Fetch data stored in database concerning this trick
+        $trickName = $trick->getName();
+        $trickDescription = $trick->getDescription();
+        $trickCategory = $trick->getCategory();
+
+
+        $trickForm = $this->createForm(TricksFormType::class);
+        $trickForm->handleRequest($request);
+        // Fetch the data-id attribute : how to ?
+        
+        if ($trickForm->isSubmitted() && $trickForm->isValid()) {
+            // Fetch data in the form and compare it to the database
+            $trickFormName = $trickForm->get('name')->getData();
+            $trickFormDescription = $trickForm->get('description')->getData();
+            $trickFormCategory = $trickForm->get('category')->getData();
+            
+            if ($trickFormName != $trickName)
+            {
+                $trick->setName($trickFormName);
+                $emi->persist($trick);
+            }
+            if ($trickFormDescription != $trickDescription)
+            {
+                $trick->setDescription($trickFormDescription);
+                $emi->persist($trick);
+            }
+            if ($trickFormCategory != $trickCategory)
+            {
+                $trick->setCategory($trickFormCategory);
+                $emi->persist($trick);
+            }
+            $emi->flush();
+
+            $this->addFlash('success', 'Votre trick a bien été modifié !');
+            return $this->redirectToRoute('app_snowtricks');
+        }
+    }
 }

@@ -17,20 +17,13 @@ class MediaType extends AbstractType
     {
         $builder
             ->add('media', FileType::class, [
-                'required' => true,
+                // 'required' => true,
                 'constraints' => [
                     new Image([
                         'maxSize' => '5M',
                     ]),
                 ],
             ])
-            // ->add('video', TextType::class, [
-            //     'attr' => [
-            //         'class' => 'form-control'
-            //     ],
-            //     'label' => "Code d'intégration de la vidéo",
-            //     'required' => false
-            // ])
         ;
     }
 

@@ -17,29 +17,38 @@
 		<div class="row">
 			<div class="col">
 				<h1 class="h3 mb-3 font-weight-normal">Modifiez ce trick :</h1>
-				<form method="POST" action="#" enctype="multipart/form-data">
+				<form method="POST" action="{{ path('store',{'id':trick.id}) }}" enctype="multipart/form-data">
 					{{ form_start(trickForm) }}
 					{{ form_row(trickForm.name) }}
 					{{ form_row(trickForm.description) }}
 					{{ form_row(trickForm.category) }}
 					<fieldset>
 						<legend>Médias</legend>
-							{{ form_row(trickForm.media) }}
+						{% if is_editing %}
+							{{ form_row(trickForm.media, {'required': false}) }}
+						{% else %}
+							{{ form_row(trickForm.media, {'required': true}) }}
+						{% endif %}
 							{{ form_row(trickForm.video) }}
 					</fieldset>
+					<div class="pb-4 mt-4">
+						{% for mediaItem in media %}
+							{% if mediaItem.type == 'photo' %}
+								<img src="{{ asset(mediaItem.media) }}" alt="Image" style="height:120px"/>
+								<div>
+									<label for="image">Supprimer</label>
+									<input name="image" type="checkbox" data-id="{{ mediaItem.id }}">
+								</div>
+							{% elseif mediaItem.type == 'video' %}
+								{{ mediaItem.media|raw }}
+							{% endif %}
+						{% endfor %}
+					</div>
 					<button type="submit" class="btn btn-primary mt-4">Valider</button>
 					{{ form_end(trickForm) }}
 				</form>
 			</div>
 		</div>
-        {% for mediaItem in media %}
-            {% if mediaItem.type == 'photo' %}
-                <img src="{{ asset(mediaItem.media) }}" alt="Image" />
-            {% elseif mediaItem.type == 'video' %}
-                {{ mediaItem.media|raw }}
-            {% endif %}
-        {% endfor %}
-        
 	</div>
 
 {% endblock %}
