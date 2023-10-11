@@ -248,11 +248,12 @@ class SnowtricksController extends AbstractController
 
         $trickForm = $this->createForm(TricksFormType::class, $trick);
         $media = $mediaRepository->findBy(['trick' => $trick]);
-        
+        $is_editing = true;
         return $this->render('snowtricks/edit.html.twig', [
             'trickForm' => $trickForm->createView(),
             'trick' => $trick,
             'media' => $media,
+            'is_editing' => $is_editing,
         ]);
     }
 
@@ -273,13 +274,53 @@ class SnowtricksController extends AbstractController
         $trickDescription = $trick->getDescription();
         $trickCategory = $trick->getCategory();
 
+        // Fetch the media repository
+        $mediaRepository = $emi->getRepository(Media::class);
 
+        // Fetch the ids of the images to delete
+        $imagesToDelete = [];
+        $dataImage = $request->request->all();
+        if (isset($dataImage['image']) && is_array($dataImage['image'])) {
+            foreach ($dataImage['image'] as $imageId) {
+                $imagesToDelete[] = $imageId;
+            }
+            foreach ($imagesToDelete as $imageId)
+            {
+                $image = $mediaRepository->find($imageId);
+                $filePath = $this->getParameter('kernel.project_dir') . '/public' . $image->getMedia();
+                if (file_exists($filePath))
+                {
+                    unlink($filePath);
+                    // TODO: Remove from database
+                }
+            }    
+        }
+
+        // Fetch the ids of the videos to delete
+        $videosToDelete = [];
+        $dataVideo = $request->request->all();
+        if (isset($dataVideo['video']) && is_array($dataVideo['video'])) {
+            foreach ($dataVideo['video'] as $videoId) {
+                $videosToDelete[] = $videoId;
+            }
+            foreach ($videosToDelete as $videoId)
+            {
+                //$video = $mediaRepository->find($videoId);
+                $video = $mediaRepository->find($videoId);
+                if ($video)
+                {
+                    dd($video);
+                    // TODO: Remove from database
+                }
+            }
+        }
+
+        //dd($imagesToDelete, $videosToDelete);
+        
+        // Fetch data in the form and compare it to the database
         $trickForm = $this->createForm(TricksFormType::class);
         $trickForm->handleRequest($request);
-        // Fetch the data-id attribute : how to ?
-        
         if ($trickForm->isSubmitted() && $trickForm->isValid()) {
-            // Fetch data in the form and compare it to the database
             $trickFormName = $trickForm->get('name')->getData();
             $trickFormDescription = $trickForm->get('description')->getData();
             $trickFormCategory = $trickForm->get('category')->getData();
@@ -299,10 +340,13 @@ class SnowtricksController extends AbstractController
                 $trick->setCategory($trickFormCategory);
                 $emi->persist($trick);
             }
+            
             $emi->flush();
 
             $this->addFlash('success', 'Votre trick a bien été modifié !');
             return $this->redirectToRoute('app_snowtricks');
         }
+        $this->addFlash('danger', 'Une erreur est survenue lors de la modification de votre trick.');
+        return $this->redirectToRoute('app_snowtricks');
     }
 }

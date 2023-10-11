@@ -34,13 +34,23 @@
 					<div class="pb-4 mt-4">
 						{% for mediaItem in media %}
 							{% if mediaItem.type == 'photo' %}
+							<div>
+								<h5>Images associées à ce trick :</h5>
+							</div>
 								<img src="{{ asset(mediaItem.media) }}" alt="Image" style="height:120px"/>
 								<div>
-									<label for="image">Supprimer</label>
-									<input name="image" type="checkbox" data-id="{{ mediaItem.id }}">
+									<span>Supprimer</span>
+									<input name="image[]" type="checkbox" value="{{ mediaItem.id }}">
 								</div>
 							{% elseif mediaItem.type == 'video' %}
+							<div>
+								<h5>Vidéos associées à ce trick :</h5>
+							</div>
 								{{ mediaItem.media|raw }}
+								<div>
+									<span>Supprimer</span>
+									<input name="video[]" type="checkbox" value="{{ mediaItem.id }}">
+								</div>
 							{% endif %}
 						{% endfor %}
 					</div>
