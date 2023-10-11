@@ -293,6 +293,7 @@ class SnowtricksController extends AbstractController
                     unlink($filePath);
                     // TODO: Remove from database
                 }
+                $emi->remove($image);
             }    
         }
 
@@ -309,11 +310,14 @@ class SnowtricksController extends AbstractController
                 $video = $mediaRepository->find($videoId);
                 if ($video)
                 {
-                    dd($video);
+                    $emi->remove($video);
+
+                    // dd($video);
                     // TODO: Remove from database
                 }
             }
         }
+        $emi->flush();
 
         //dd($imagesToDelete, $videosToDelete);
         
