@@ -2,18 +2,19 @@
 
 {% block body %}
 
-{% for label, messages in app.flashes %}
-	{% for message in messages %}
-		<div class="alert alert-{{ label }} alert-dismissible" role="alert">
-			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-			<div class="alert-message">
-				{{ message|raw }}
+	{% for label, messages in app.flashes %}
+		{% for message in messages %}
+			<div class="alert alert-{{ label }} alert-dismissible" role="alert">
+				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+				<div class="alert-message">
+					{{ message|raw }}
+				</div>
 			</div>
-		</div>
+		{% endfor %}
 	{% endfor %}
-{% endfor %}
 
-	<body id="page-top">
+	<body
+		id="page-top">
 		<!-- Trick Grid-->
 		<section class="page-section bg-light" id="tricks">
 			<div class="container">
@@ -28,13 +29,16 @@
 								<a class="trick-link" href="{{ path('show',{'id':trick.id}) }}">
 									<div class="trick-hover">
 										<div class="trick-hover-content">
-											{# <i class="fas fa-plus fa-3x"></i> #}
+											{% set displayPhoto = null %}
 											{% for media in trick.media %}
-											{# {{ dump(media.getMedia()) }} #}
-												{% if loop.first and media.type == 'photo' %}
-													<img class="grid-media" src="{{ asset(media.getMedia()) }}" alt="">
+												{% if displayPhoto is null and media.type == 'photo' %}
+													{% set displayPhoto = media %}
 												{% endif %}
 											{% endfor %}
+
+											{% if displayPhoto is not null %}
+												<img class="grid-media" src="{{ asset(displayPhoto.getMedia()) }}" alt="">
+											{% endif %}
 										</div>
 									</div>
 								</a>
@@ -54,10 +58,10 @@
 				</div>
 			</div>
 		</section>
-			{% if app.user %}
+		{% if app.user %}
 			<div class="container text-center">
 				<a class="btn btn-primary btn-xl text-uppercase" href="{{ path('newTrick') }}">Créer un nouveau trick !</a>
 			</div>
-			{% endif %}
+		{% endif %}
 	</body>
 {% endblock %}

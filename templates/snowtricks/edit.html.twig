@@ -29,23 +29,32 @@
 						{% else %}
 							{{ form_row(trickForm.media, {'required': true}) }}
 						{% endif %}
-							{{ form_row(trickForm.video) }}
+						{{ form_row(trickForm.video) }}
 					</fieldset>
 					<div class="pb-4 mt-4">
+						<div>
+							<h5>Images associées à ce trick :</h5>
+						</div>
+						<div class="d-flex flex-wrap">
+							{% for mediaItem in media %}
+								{% if mediaItem.type == 'photo' %}
+									<div class="mr-3 mb-3">
+										<div class="image-container">
+											<img src="{{ asset(mediaItem.media) }}" alt="Image" style="height:120px; margin-right:10px;"/>
+										</div>
+										<div class="mb-3">
+											<span>Supprimer</span>
+											<input name="image[]" type="checkbox" value="{{ mediaItem.id }}">
+										</div>
+									</div>
+								{% endif %}
+							{% endfor %}
+						</div>
+						<div>
+							<h5>Vidéos associées à ce trick :</h5>
+						</div>
 						{% for mediaItem in media %}
-							{% if mediaItem.type == 'photo' %}
-							<div>
-								<h5>Images associées à ce trick :</h5>
-							</div>
-								<img src="{{ asset(mediaItem.media) }}" alt="Image" style="height:120px"/>
-								<div>
-									<span>Supprimer</span>
-									<input name="image[]" type="checkbox" value="{{ mediaItem.id }}">
-								</div>
-							{% elseif mediaItem.type == 'video' %}
-							<div>
-								<h5>Vidéos associées à ce trick :</h5>
-							</div>
+							{% if mediaItem.type == 'video' %}
 								{{ mediaItem.media|raw }}
 								<div>
 									<span>Supprimer</span>
@@ -54,11 +63,10 @@
 							{% endif %}
 						{% endfor %}
 					</div>
-					<button type="submit" class="btn btn-primary mt-4">Valider</button>
-					{{ form_end(trickForm) }}
-				</form>
-			</div>
+				</div>
+				<button type="submit" class="btn btn-primary mt-4">Valider</button>
+				{{ form_end(trickForm) }}
+			</form>
 		</div>
 	</div>
-
-{% endblock %}
+</div>{% endblock %}

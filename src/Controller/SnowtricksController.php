@@ -53,6 +53,7 @@ class SnowtricksController extends AbstractController
     {
         // Fetch all the tricks through the trick repository.
         $tricks = $this->trickRepository->findAll();
+        
         return $this->render('snowtricks/index.html.twig', [
             'controller_name' => 'SnowtricksController',
             'tricks' => $tricks
@@ -68,7 +69,7 @@ class SnowtricksController extends AbstractController
      * 
      * @return Response HTTP response to redirect the user after the trick creation
      */
-    #[Route('snowtrick/create', name:'createTrick', methods: ['POST'])]
+    #[Route('snowtrick/create', name: 'createTrick', methods: ['POST'])]
     public function createNewTrick(Request $request, EntityManagerInterface $emi): Response
     {
         if (!$this->security->isGranted('ROLE_USER')) {
@@ -82,31 +83,30 @@ class SnowtricksController extends AbstractController
 
             $trick = new Trick();
             $user = $this->getUser();
-    
+
             $trickForm->handleRequest($request);
-    
+
             if ($trickForm->isSubmitted() && $trickForm->isValid()) {
                 $trick->setUser($user);
                 $trick->setName($trickForm->get('name')->getData());
                 $trick->setDescription($trickForm->get('description')->getData());
                 $trick->setCategory($trickForm->get('category')->getData());
                 $emi->persist($trick);
-    
+
                 $mediaFiles = $trickForm['media']->getData();
-    
+
                 foreach ($mediaFiles as $media) {
                     if ($media) {
                         $mimeTypes = new MimeTypes();
                         $mime = $mimeTypes->guessMimeType($media->getPathname());
-    
+
                         if (str_starts_with($mime, 'image/')) {
                             //dd($mime);
                             $destination = $this->getParameter('kernel.project_dir') . '/public/images';
                             //dd($destination);
                             $relativePath = '/images';
                             $filesystem = new Filesystem();
-                            if(!$filesystem->exists($destination))
-                            {
+                            if (!$filesystem->exists($destination)) {
                                 $filesystem->mkdir($destination, 0777);
                             }
                             $originalFilename = pathinfo($media->getClientOriginalName(), PATHINFO_FILENAME);
@@ -117,12 +117,12 @@ class SnowtricksController extends AbstractController
                                     $destination,
                                     $newFilename
                                 );
-    
+
                                 $media = new Media();
                                 $media->setTrick($trick);
                                 $media->setType('photo');
                                 $media->setMedia($relativePath . '/' . $newFilename);
-    
+
                                 $emi->persist($media);
                             } catch (FileException $e) {
                                 $this->addFlash('danger', "Il y a eu un problème lors de l'enregistrement de votre fichier.");
@@ -132,9 +132,8 @@ class SnowtricksController extends AbstractController
                 }
 
                 $video = $trickForm['video']->getData();
-                
-                if ($video)
-                {
+
+                if ($video) {
                     $media = new Media();
                     $media->setTrick($trick);
                     $media->setType('video');
@@ -144,9 +143,9 @@ class SnowtricksController extends AbstractController
 
                 $emi->flush();
                 $emi->commit();
-    
+
                 $this->addFlash('success', 'Votre trick a bien été créé !');
-    
+
                 return $this->redirectToRoute('app_snowtricks');
             }
         } catch (\Exception $e) {
@@ -163,7 +162,7 @@ class SnowtricksController extends AbstractController
      *
      * @return Response An instance of response with the form to create a new trick
      */
-    #[Route('/snowtricks/new', name:'newTrick', methods: ['GET'])]
+    #[Route('/snowtricks/new', name: 'newTrick', methods: ['GET'])]
     public function newTrick(): Response
     {
         if (!$this->security->isGranted('ROLE_USER')) {
@@ -202,7 +201,7 @@ class SnowtricksController extends AbstractController
      * 
      * @return Response An instance of response with the homepage
      */
-    #[Route('/snowtricks/delete/{id}', name:'delete')]
+    #[Route('/snowtricks/delete/{id}', name: 'delete')]
     public function delete(EntityManagerInterface $emi, Trick $trick): Response
     {
         if (!$this->security->isGranted('ROLE_USER')) {
@@ -211,16 +210,13 @@ class SnowtricksController extends AbstractController
 
         $mediaCollection = $trick->getMedia();
         $mediaCollection->initialize();
-        
-        foreach ($mediaCollection as $medium)
-        {
+
+        foreach ($mediaCollection as $medium) {
             $mediumType = $medium->getType();
-            if($mediumType === 'photo')
-            {
+            if ($mediumType === 'photo') {
                 $filePath = $this->getParameter('kernel.project_dir') . '/public' . $medium->getMedia();
 
-                if (file_exists($filePath))
-                {
+                if (file_exists($filePath)) {
                     unlink($filePath);
                 }
             }
@@ -239,7 +235,7 @@ class SnowtricksController extends AbstractController
      * 
      * @return Response An instance of response with the form page
      */
-    #[Route('/snowtricks/edit/{id}', name:'edit')]
+    #[Route('/snowtricks/edit/{id}', name: 'edit')]
     public function edit(Trick $trick, MediaRepository $mediaRepository): Response
     {
         if (!$this->security->isGranted('ROLE_USER')) {
@@ -247,6 +243,7 @@ class SnowtricksController extends AbstractController
         }
 
         $trickForm = $this->createForm(TricksFormType::class, $trick);
+
         $media = $mediaRepository->findBy(['trick' => $trick]);
         $is_editing = true;
         return $this->render('snowtricks/edit.html.twig', [
@@ -266,13 +263,90 @@ class SnowtricksController extends AbstractController
      * 
      * @return Response An instance of response with the homepage
      */
-    #[Route('/snowtricks/store/{id}', name:"store")]
+    #[Route('/snowtricks/store/{id}', name: "store")]
     public function store(Trick $trick, Request $request, EntityManagerInterface $emi): Response
     {
+        if (!$this->security->isGranted('ROLE_USER')) {
+            throw new AccessDeniedException('Accès refusé. Vous n\'avez pas les autorisations nécessaires.');
+        }
+
         // Fetch data stored in database concerning this trick
         $trickName = $trick->getName();
         $trickDescription = $trick->getDescription();
         $trickCategory = $trick->getCategory();
+
+        // Fetch data in the form and compare it to the database
+        $trickForm = $this->createForm(TricksFormType::class);
+        $trickForm->handleRequest($request);
+        
+        $trickFormName = $trickForm->get('name')->getData();
+        $trickFormDescription = $trickForm->get('description')->getData();
+        $trickFormCategory = $trickForm->get('category')->getData();
+
+        if ($trickFormName != $trickName) {
+            $trick->setName($trickFormName);
+            $emi->persist($trick);
+        }
+        if ($trickFormDescription != $trickDescription) {
+            $trick->setDescription($trickFormDescription);
+            $emi->persist($trick);
+        }
+        if ($trickFormCategory != $trickCategory) {
+            $trick->setCategory($trickFormCategory);
+            $emi->persist($trick);
+        }
+
+        // Deal with images upload if there are any
+        $mediaFiles = $trickForm['media']->getData();
+        foreach ($mediaFiles as $media) {
+            if ($media) {
+                $mimeTypes = new MimeTypes();
+                $mime = $mimeTypes->guessMimeType($media->getPathname());
+
+                if (str_starts_with($mime, 'image/')) {
+                    //dd($mime);
+                    $destination = $this->getParameter('kernel.project_dir') . '/public/images';
+                    //dd($destination);
+                    $relativePath = '/images';
+                    $filesystem = new Filesystem();
+                    if (!$filesystem->exists($destination)) {
+                        $filesystem->mkdir($destination, 0777);
+                    }
+                    $originalFilename = pathinfo($media->getClientOriginalName(), PATHINFO_FILENAME);
+                    $newFilename = $originalFilename . '-' . uniqid() . '.' . $media->guessExtension();
+                    //dd($originalFilename, $newFilename);
+                    try {
+                        $media->move(
+                            $destination,
+                            $newFilename
+                        );
+
+                        $media = new Media();
+                        $media->setTrick($trick);
+                        $media->setType('photo');
+                        $media->setMedia($relativePath . '/' . $newFilename);
+
+                        $emi->persist($media);
+                        $emi->flush();
+                    } catch (FileException $e) {
+                        $this->addFlash('danger', "Il y a eu un problème lors de l'enregistrement de votre fichier.");
+                    }
+                }
+            }
+        }
+
+        // Deal with videos upload if there are any
+        $video = $trickForm['video']->getData();
+
+        if ($video) {
+            $media = new Media();
+            $media->setTrick($trick);
+            $media->setType('video');
+            $media->setMedia($video);
+            $emi->persist($media);
+            $emi->flush();
+        }
+
 
         // Fetch the media repository
         $mediaRepository = $emi->getRepository(Media::class);
@@ -284,17 +358,32 @@ class SnowtricksController extends AbstractController
             foreach ($dataImage['image'] as $imageId) {
                 $imagesToDelete[] = $imageId;
             }
-            foreach ($imagesToDelete as $imageId)
-            {
+            foreach ($imagesToDelete as $imageId) {
                 $image = $mediaRepository->find($imageId);
-                $filePath = $this->getParameter('kernel.project_dir') . '/public' . $image->getMedia();
-                if (file_exists($filePath))
+                $trick = $image->getTrick();
+                $trickImages = $mediaRepository->findBy(['trick' => $trick]);
+                $linkedImages = [];
+                foreach($trickImages as $trickImage)
                 {
-                    unlink($filePath);
-                    // TODO: Remove from database
+                    if($trickImage->getType() == 'photo')
+                    {
+                        $linkedImages[] = $trickImage;
+                    }
                 }
-                $emi->remove($image);
-            }    
+                //dd(count($imagesToDelete) < count($linkedImages) );
+                $hasOtherImages = count($linkedImages) > 1;
+                //dd($hasOtherImages);
+                $filePath = $this->getParameter('kernel.project_dir') . '/public' . $image->getMedia();
+                if ($hasOtherImages && count($imagesToDelete) < count($linkedImages)) {
+                    if (file_exists($filePath)) {
+                        unlink($filePath);
+                    }
+                    $emi->remove($image);
+                } else {
+                    $this->addFlash('danger', 'Vous ne pouvez pas avoir un trick sans image.');
+                    return $this->redirectToRoute('app_snowtricks');
+                }
+            }
         }
 
         // Fetch the ids of the videos to delete
@@ -304,53 +393,16 @@ class SnowtricksController extends AbstractController
             foreach ($dataVideo['video'] as $videoId) {
                 $videosToDelete[] = $videoId;
             }
-            foreach ($videosToDelete as $videoId)
-            {
-                //$video = $mediaRepository->find($videoId);
+            foreach ($videosToDelete as $videoId) {
                 $video = $mediaRepository->find($videoId);
-                if ($video)
-                {
+                if ($video) {
                     $emi->remove($video);
-
-                    // dd($video);
-                    // TODO: Remove from database
                 }
             }
         }
         $emi->flush();
 
-        //dd($imagesToDelete, $videosToDelete);
-        
-        // Fetch data in the form and compare it to the database
-        $trickForm = $this->createForm(TricksFormType::class);
-        $trickForm->handleRequest($request);
-        if ($trickForm->isSubmitted() && $trickForm->isValid()) {
-            $trickFormName = $trickForm->get('name')->getData();
-            $trickFormDescription = $trickForm->get('description')->getData();
-            $trickFormCategory = $trickForm->get('category')->getData();
-            
-            if ($trickFormName != $trickName)
-            {
-                $trick->setName($trickFormName);
-                $emi->persist($trick);
-            }
-            if ($trickFormDescription != $trickDescription)
-            {
-                $trick->setDescription($trickFormDescription);
-                $emi->persist($trick);
-            }
-            if ($trickFormCategory != $trickCategory)
-            {
-                $trick->setCategory($trickFormCategory);
-                $emi->persist($trick);
-            }
-            
-            $emi->flush();
-
-            $this->addFlash('success', 'Votre trick a bien été modifié !');
-            return $this->redirectToRoute('app_snowtricks');
-        }
-        $this->addFlash('danger', 'Une erreur est survenue lors de la modification de votre trick.');
+        $this->addFlash('success', 'Votre trick a bien été modifié !');
         return $this->redirectToRoute('app_snowtricks');
     }
 }
