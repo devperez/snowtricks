@@ -270,137 +270,146 @@ class SnowtricksController extends AbstractController
             throw new AccessDeniedException('Accès refusé. Vous n\'avez pas les autorisations nécessaires.');
         }
 
-        // Fetch data stored in database concerning this trick
-        $trickName = $trick->getName();
-        $trickDescription = $trick->getDescription();
-        $trickCategory = $trick->getCategory();
+        $emi->beginTransaction();
 
-        // Fetch data in the form and compare it to the database
-        $trickForm = $this->createForm(TricksFormType::class);
-        $trickForm->handleRequest($request);
-        
-        $trickFormName = $trickForm->get('name')->getData();
-        $trickFormDescription = $trickForm->get('description')->getData();
-        $trickFormCategory = $trickForm->get('category')->getData();
+        try {
 
-        if ($trickFormName != $trickName) {
-            $trick->setName($trickFormName);
-            $emi->persist($trick);
-        }
-        if ($trickFormDescription != $trickDescription) {
-            $trick->setDescription($trickFormDescription);
-            $emi->persist($trick);
-        }
-        if ($trickFormCategory != $trickCategory) {
-            $trick->setCategory($trickFormCategory);
-            $emi->persist($trick);
-        }
+            // Fetch data stored in database concerning this trick
+            $trickName = $trick->getName();
+            $trickDescription = $trick->getDescription();
+            $trickCategory = $trick->getCategory();
 
-        // Deal with images upload if there are any
-        $mediaFiles = $trickForm['media']->getData();
-        foreach ($mediaFiles as $media) {
-            if ($media) {
-                $mimeTypes = new MimeTypes();
-                $mime = $mimeTypes->guessMimeType($media->getPathname());
+            // Fetch data in the form and compare it to the database
+            $trickForm = $this->createForm(TricksFormType::class);
+            $trickForm->handleRequest($request);
+            
+            $trickFormName = $trickForm->get('name')->getData();
+            $trickFormDescription = $trickForm->get('description')->getData();
+            $trickFormCategory = $trickForm->get('category')->getData();
 
-                if (str_starts_with($mime, 'image/')) {
-                    //dd($mime);
-                    $destination = $this->getParameter('kernel.project_dir') . '/public/images';
-                    //dd($destination);
-                    $relativePath = '/images';
-                    $filesystem = new Filesystem();
-                    if (!$filesystem->exists($destination)) {
-                        $filesystem->mkdir($destination, 0777);
-                    }
-                    $originalFilename = pathinfo($media->getClientOriginalName(), PATHINFO_FILENAME);
-                    $newFilename = $originalFilename . '-' . uniqid() . '.' . $media->guessExtension();
-                    //dd($originalFilename, $newFilename);
-                    try {
-                        $media->move(
-                            $destination,
-                            $newFilename
-                        );
+            if ($trickFormName != $trickName) {
+                $trick->setName($trickFormName);
+                $emi->persist($trick);
+            }
+            if ($trickFormDescription != $trickDescription) {
+                $trick->setDescription($trickFormDescription);
+                $emi->persist($trick);
+            }
+            if ($trickFormCategory != $trickCategory) {
+                $trick->setCategory($trickFormCategory);
+                $emi->persist($trick);
+            }
 
-                        $media = new Media();
-                        $media->setTrick($trick);
-                        $media->setType('photo');
-                        $media->setMedia($relativePath . '/' . $newFilename);
+            // Deal with images upload if there are any
+            $mediaFiles = $trickForm['media']->getData();
+            foreach ($mediaFiles as $media) {
+                if ($media) {
+                    $mimeTypes = new MimeTypes();
+                    $mime = $mimeTypes->guessMimeType($media->getPathname());
 
-                        $emi->persist($media);
-                        $emi->flush();
-                    } catch (FileException $e) {
-                        $this->addFlash('danger', "Il y a eu un problème lors de l'enregistrement de votre fichier.");
+                    if (str_starts_with($mime, 'image/')) {
+                        //dd($mime);
+                        $destination = $this->getParameter('kernel.project_dir') . '/public/images';
+                        //dd($destination);
+                        $relativePath = '/images';
+                        $filesystem = new Filesystem();
+                        if (!$filesystem->exists($destination)) {
+                            $filesystem->mkdir($destination, 0777);
+                        }
+                        $originalFilename = pathinfo($media->getClientOriginalName(), PATHINFO_FILENAME);
+                        $newFilename = $originalFilename . '-' . uniqid() . '.' . $media->guessExtension();
+                        //dd($originalFilename, $newFilename);
+                        try {
+                            $media->move(
+                                $destination,
+                                $newFilename
+                            );
+
+                            $media = new Media();
+                            $media->setTrick($trick);
+                            $media->setType('photo');
+                            $media->setMedia($relativePath . '/' . $newFilename);
+
+                            $emi->persist($media);
+                            $emi->flush();
+                        } catch (FileException $e) {
+                            $this->addFlash('danger', "Il y a eu un problème lors de l'enregistrement de votre fichier.");
+                        }
                     }
                 }
             }
-        }
 
-        // Deal with videos upload if there are any
-        $video = $trickForm['video']->getData();
+            // Deal with videos upload if there are any
+            $video = $trickForm['video']->getData();
 
-        if ($video) {
-            $media = new Media();
-            $media->setTrick($trick);
-            $media->setType('video');
-            $media->setMedia($video);
-            $emi->persist($media);
+            if ($video) {
+                $media = new Media();
+                $media->setTrick($trick);
+                $media->setType('video');
+                $media->setMedia($video);
+                $emi->persist($media);
+            }
             $emi->flush();
-        }
 
 
-        // Fetch the media repository
-        $mediaRepository = $emi->getRepository(Media::class);
+            // Fetch the media repository
+            $mediaRepository = $emi->getRepository(Media::class);
 
-        // Fetch the ids of the images to delete
-        $imagesToDelete = [];
-        $dataImage = $request->request->all();
-        if (isset($dataImage['image']) && is_array($dataImage['image'])) {
-            foreach ($dataImage['image'] as $imageId) {
-                $imagesToDelete[] = $imageId;
-            }
-            foreach ($imagesToDelete as $imageId) {
-                $image = $mediaRepository->find($imageId);
-                $trick = $image->getTrick();
-                $trickImages = $mediaRepository->findBy(['trick' => $trick]);
-                $linkedImages = [];
-                foreach($trickImages as $trickImage)
-                {
-                    if($trickImage->getType() == 'photo')
+            // Fetch the ids of the images to delete
+            $imagesToDelete = [];
+            $dataImage = $request->request->all();
+            if (isset($dataImage['image']) && is_array($dataImage['image'])) {
+                foreach ($dataImage['image'] as $imageId) {
+                    $imagesToDelete[] = $imageId;
+                }
+                foreach ($imagesToDelete as $imageId) {
+                    $image = $mediaRepository->find($imageId);
+                    $trick = $image->getTrick();
+                    $trickImages = $mediaRepository->findBy(['trick' => $trick]);
+                    $linkedImages = [];
+                    foreach($trickImages as $trickImage)
                     {
-                        $linkedImages[] = $trickImage;
+                        if($trickImage->getType() == 'photo')
+                        {
+                            $linkedImages[] = $trickImage;
+                        }
                     }
-                }
-                //dd(count($imagesToDelete) < count($linkedImages) );
-                $hasOtherImages = count($linkedImages) > 1;
-                //dd($hasOtherImages);
-                $filePath = $this->getParameter('kernel.project_dir') . '/public' . $image->getMedia();
-                if ($hasOtherImages && count($imagesToDelete) < count($linkedImages)) {
-                    if (file_exists($filePath)) {
+                    //dd(count($imagesToDelete) < count($linkedImages) );
+                    $hasOtherImages = count($linkedImages) > 1;
+                    //dd($hasOtherImages);
+                    $filePath = $this->getParameter('kernel.project_dir') . '/public' . $image->getMedia();
+                    if ($hasOtherImages && count($imagesToDelete) < count($linkedImages)) {
                         unlink($filePath);
+                        $emi->remove($image);
+                    } else {
+                        $this->addFlash('danger', 'Vous ne pouvez pas avoir un trick sans image.');
+                        return $this->redirectToRoute('app_snowtricks');
                     }
-                    $emi->remove($image);
-                } else {
-                    $this->addFlash('danger', 'Vous ne pouvez pas avoir un trick sans image.');
-                    return $this->redirectToRoute('app_snowtricks');
                 }
             }
-        }
 
-        // Fetch the ids of the videos to delete
-        $videosToDelete = [];
-        $dataVideo = $request->request->all();
-        if (isset($dataVideo['video']) && is_array($dataVideo['video'])) {
-            foreach ($dataVideo['video'] as $videoId) {
-                $videosToDelete[] = $videoId;
-            }
-            foreach ($videosToDelete as $videoId) {
-                $video = $mediaRepository->find($videoId);
-                if ($video) {
-                    $emi->remove($video);
+            // Fetch the ids of the videos to delete
+            $videosToDelete = [];
+            $dataVideo = $request->request->all();
+            if (isset($dataVideo['video']) && is_array($dataVideo['video'])) {
+                foreach ($dataVideo['video'] as $videoId) {
+                    $videosToDelete[] = $videoId;
+                }
+                foreach ($videosToDelete as $videoId) {
+                    $video = $mediaRepository->find($videoId);
+                    if ($video) {
+                        $emi->remove($video);
+                    }
                 }
             }
+            $emi->flush();
+            $emi->commit();
+
+        }catch (\Exception $e) {
+            $emi->rollback();
+            $this->addFlash('danger', 'Il y a eu un problème lors de la modification de votre trick.');
+            return $this->redirectToRoute('app_snowtricks');
         }
-        $emi->flush();
 
         $this->addFlash('success', 'Votre trick a bien été modifié !');
         return $this->redirectToRoute('app_snowtricks');
