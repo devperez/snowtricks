@@ -4,11 +4,12 @@ namespace App\Controller;
 
 use App\Entity\Media;
 use App\Entity\Trick;
+use App\Entity\Comment;
 use App\Form\MediaType;
+use App\Form\CommentType;
 use App\Form\TricksFormType;
 use App\Repository\MediaRepository;
 use App\Repository\TrickRepository;
-use Doctrine\ORM\EntityManager;
 use Symfony\Component\Mime\MimeTypes;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -189,8 +190,18 @@ class SnowtricksController extends AbstractController
     #[Route('/snowtricks/{id}', name: 'show')]
     public function show(Trick $trick): Response
     {
+        $user = $this->security->getUser();
+        $comment = new Comment();
+
+        if($user)
+        {
+            $comment->setUser($user);
+        }
+        
+        $commentForm = $this->createForm(CommentType::class, $comment);
         return $this->render('snowtricks/show.html.twig', [
-            'trick' => $trick
+            'trick' => $trick,
+            'commentForm' => $commentForm->createView(),
         ]);
     }
 
@@ -374,9 +385,9 @@ class SnowtricksController extends AbstractController
                             $linkedImages[] = $trickImage;
                         }
                     }
-                    //dd(count($imagesToDelete) < count($linkedImages) );
+
                     $hasOtherImages = count($linkedImages) > 1;
-                    //dd($hasOtherImages);
+
                     $filePath = $this->getParameter('kernel.project_dir') . '/public' . $image->getMedia();
                     if ($hasOtherImages && count($imagesToDelete) < count($linkedImages)) {
                         unlink($filePath);

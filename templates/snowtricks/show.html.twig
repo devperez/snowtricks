@@ -62,6 +62,18 @@
 			</div>
 		</div>
 
+		<!-- Affichage du formulaire si l'utilisateur est connecté -->
+		{% if app.user %}
+			<form method="POST" action="{{ path('commentTrick',{'id':trick.id}) }}">
+				{{ form_start(commentForm) }}
+				{{ form_row(commentForm.comment) }}
+				{{ form_row(commentForm.user) }}
+				{{ form_row(commentForm.created_at) }}
+				<button type="submit" class="btn btn-primary mt-4">Valider</button>
+				{{ form_end(commentForm) }}
+			</form>
+		{% endif %}
+
 		<!-- Affichage des commentaires -->
 		<div class="container mb-4">
 			<h3>Commentaires</h3>
