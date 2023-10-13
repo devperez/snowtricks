@@ -7,8 +7,8 @@
 		{% if app.user and app.user.id == trick.user.id %}
 			<div class="edit" data-id="{{ trick.id }}">
 				<a href="{{ path('edit', {'id': trick.id}) }}">
-					<i class="fa-solid fa-pencil pencil"  style="cursor:pointer" title="Modifier cet article"></i>
-				</a
+					<i class="fa-solid fa-pencil pencil" style="cursor:pointer" title="Modifier cet article"></i>
+				</a>
 			</div>
 		{% endif %}
 		<ul class="list-inline text-center">
@@ -63,28 +63,33 @@
 		</div>
 
 		<!-- Affichage du formulaire si l'utilisateur est connecté -->
-		{% if app.user %}
-			<form method="POST" action="{{ path('commentTrick',{'id':trick.id}) }}">
-				{{ form_start(commentForm) }}
-				{{ form_row(commentForm.comment) }}
-				{{ form_row(commentForm.user) }}
-				{{ form_row(commentForm.created_at) }}
-				<button type="submit" class="btn btn-primary mt-4">Valider</button>
-				{{ form_end(commentForm) }}
-			</form>
-		{% endif %}
-
-		<!-- Affichage des commentaires -->
-		<div class="container mb-4">
-			<h3>Commentaires</h3>
-				<div class="mt-4">
-					{% if trick.comments is empty %}
-						<p>Aucun commentaire pour ce trick.</p>
-					{% else %}
-						<div class="d-flex">
-							<div class="col-md-8">
+		<div class="container">
+			<div class="row">
+				<div
+					class="col-md-6">
+					<!-- Formulaire de commentaires -->
+					{% if app.user %}
+						<form method="POST" action="{{ path('commentTrick',{'id':trick.id}) }}">
+							{{ form_start(commentForm) }}
+							{{ form_row(commentForm.comment) }}
+							{{ form_row(commentForm.user) }}
+							{{ form_row(commentForm.created_at) }}
+							<button type="submit" class="btn btn-primary mt-4">Valider</button>
+							{{ form_end(commentForm) }}
+						</form>
+					{% endif %}
+				</div>
+				<div
+					class="col-md-6">
+					<!-- Affichage des commentaires -->
+					<h3>Commentaires</h3>
+					<div class="mt-4">
+						{% if trick.comments is empty %}
+							<p>Aucun commentaire pour ce trick.</p>
+						{% else %}
+							<div class="row">
 								{% for comment in trick.comments %}
-									<div class="mb-5 d-flex">
+									<div class="col-md-6 mb-4">
 										<div class="card testimonial-card" style="width: 250px;">
 											<div class="card-up" style="background-color: #9d789b;"></div>
 											<div class="avatar mx-auto bg-white">
@@ -104,14 +109,11 @@
 									</div>
 								{% endfor %}
 							</div>
-						</div>
-					{% endif %}
-				</div=>
+						{% endif %}
+					</div>
+				</div>
 			</div>
-            <div class="mt-4 pb-4 text-center">
-                <a class="btn btn-primary btn-xl text-uppercase" href="{{ path('app_snowtricks') }}">Voir les autres tricks !</a>
-            </div>
-        </div>
-    </div>
-	
+		</div>
+	</div>
+
 {% endblock %}

@@ -174,11 +174,4 @@ class Trick
     {
         $this->video = $video;
     }
-
-    private $filename;
-
-    public function getFilename()
-    {
-        return $this->media;
-    }
 }
