@@ -102,9 +102,7 @@ class SnowtricksController extends AbstractController
                         $mime = $mimeTypes->guessMimeType($media->getPathname());
 
                         if (str_starts_with($mime, 'image/')) {
-                            //dd($mime);
                             $destination = $this->getParameter('kernel.project_dir') . '/public/images';
-                            //dd($destination);
                             $relativePath = '/images';
                             $filesystem = new Filesystem();
                             if (!$filesystem->exists($destination)) {
@@ -112,7 +110,6 @@ class SnowtricksController extends AbstractController
                             }
                             $originalFilename = pathinfo($media->getClientOriginalName(), PATHINFO_FILENAME);
                             $newFilename = $originalFilename . '-' . uniqid() . '.' . $media->guessExtension();
-                            //dd($originalFilename, $newFilename);
                             try {
                                 $media->move(
                                     $destination,

@@ -14,8 +14,17 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class CommentController extends AbstractController
 {
+    /**
+     * Saves a comment in the data base
+     * 
+     * @param Request $request the content of the comment form
+     * @param EntityManagerInterface $emi The manager that enables to save the data in the data base
+     * @param $id The id of the trick that is being commented
+     * 
+     * @return Response An instance of response with the trick page
+     */
     #[Route('/comment/{id}', name: 'commentTrick')]
-    public function commentTrick(Request $request, EntityManagerInterface $emi, $id): Response
+    public function commentTrick(Request $request, EntityManagerInterface $emi, int $id): Response
     {
         $comment = new Comment();
         $user = $this->getUser();
