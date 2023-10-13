@@ -53,20 +53,26 @@
 						<div>
 							<h5>Vidéos associées à ce trick :</h5>
 						</div>
-						{% for mediaItem in media %}
-							{% if mediaItem.type == 'video' %}
-								{{ mediaItem.media|raw }}
-								<div>
-									<span>Supprimer</span>
-									<input name="video[]" type="checkbox" value="{{ mediaItem.id }}">
-								</div>
-							{% endif %}
-						{% endfor %}
+						<div class="d-flex flex-wrap">
+							{% for mediaItem in media %}
+								{% if mediaItem.type == 'video' %}
+									<div class="mr-3 mb-3">
+										<div class="video-container">
+											<div style="margin-right:10px">{{ mediaItem.media|raw }}</div>
+										</div>
+										<div class="mb-3">
+											<span>Supprimer</span>
+											<input name="video[]" type="checkbox" value="{{ mediaItem.id }}">
+										</div>
+									</div>
+								{% endif %}
+							{% endfor %}
+						</div>
 					</div>
-				</div>
-				<button type="submit" class="btn btn-primary mt-4">Valider</button>
-				{{ form_end(trickForm) }}
-			</form>
+					<button type="submit" class="btn btn-primary mt-4">Valider</button>
+					{{ form_end(trickForm) }}
+				</form>
+			</div>
 		</div>
 	</div>
-</div>{% endblock %}
+{% endblock %}
