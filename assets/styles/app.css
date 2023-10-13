@@ -13038,6 +13038,12 @@ header.masthead .masthead-heading {
     width: 80px;
 }
 
+.card-img-top {
+    width: 20vw;
+    height: 15vw;
+    object-fit: cover;
+}
+
 @media (min-width: 768px) {
     .timeline:before {
         left: 50%;

@@ -24,11 +24,11 @@
 				</div>
 				<div class="row">
 					{% for trick in tricks %}
-						<div class="col-lg-4 col-sm-6 mb-4">
-							<div class="trick-item">
-								<a class="trick-link" href="{{ path('show',{'id':trick.id}) }}">
-									<div class="trick-hover">
-										<div class="trick-hover-content">
+						<div class="col-lg-4 col-sm-6 mb-4 d-flex align-items-stretch">
+							<div class="card-group">
+								<div class="card">
+									<a class="trick-link" href="{{ path('show',{'id':trick.id}) }}">
+										<div class="image-container">
 											{% set displayPhoto = null %}
 											{% for media in trick.media %}
 												{% if displayPhoto is null and media.type == 'photo' %}
@@ -37,20 +37,22 @@
 											{% endfor %}
 
 											{% if displayPhoto is not null %}
-												<img class="grid-media" src="{{ asset(displayPhoto.getMedia()) }}" alt="">
+												<img class="card-img-top" src="{{ asset(displayPhoto.getMedia()) }}" alt="Trick image">
 											{% endif %}
 										</div>
+									</a>
+									<div class="card-body">
+										<h5 class="card-title">{{ trick.name }}</h5>
 									</div>
-								</a>
-								<div class="trick-caption">
-									<div class="trick-caption-heading">
-										<div class="delete d-flex justify-content-between" data-id="{{ trick.id }}">
-											{{ trick.name }}
-											{% if app.user is not null and app.user.id is same as trick.user.id %}
-												<i class="fa-solid fa-trash" style="cursor:pointer"></i>
-											{% endif %}
+									{% if app.user is not null and app.user.id is same as trick.user.id %}
+										<div class="card-footer">
+											<div class="trick-caption-heading">
+												<div class="delete d-flex justify-content-between" data-id="{{ trick.id }}">
+													<i class="fa-solid fa-trash" style="cursor:pointer"></i>
+												</div>
+											</div>
 										</div>
-									</div>
+									{% endif %}
 								</div>
 							</div>
 						</div>
@@ -59,7 +61,7 @@
 			</div>
 		</section>
 		{% if app.user %}
-			<div class="container text-center">
+			<div class="container text-center pb-4">
 				<a class="btn btn-primary btn-xl text-uppercase" href="{{ path('newTrick') }}">Créer un nouveau trick !</a>
 			</div>
 		{% endif %}
