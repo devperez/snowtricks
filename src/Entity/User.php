@@ -24,6 +24,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     private ?string $name = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\EqualTo(propertyPath : "password", message : "Les mots de passe doivent correspondre.")]
     private ?string $password = null;
 
     #[ORM\Column(length: 255)]

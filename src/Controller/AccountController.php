@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Form\ProfileImageType;
+use App\Form\ProfilePasswordType;
 use App\Repository\UserRepository;
 use Symfony\Component\Mime\MimeTypes;
 use Doctrine\ORM\EntityManagerInterface;
@@ -39,10 +40,13 @@ class AccountController extends AbstractController
         if (!$this->security->isGranted('ROLE_USER')) {
             throw new AccessDeniedException('Accès refusé. Vous n\'avez pas les autorisations nécessaires.');
         }
+
         $user = $this->getUser();
+        $passwordForm = $this->createForm(ProfilePasswordType::class);
         $form = $this->createForm(ProfileImageType::class, $user);
         return $this->render('account/index.html.twig', [
             'form' => $form->createView(),
+            'passwordForm' => $passwordForm,
             'user' => $user
         ]);
     }
