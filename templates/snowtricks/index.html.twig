@@ -47,8 +47,13 @@
 									{% if app.user is not null and app.user.id is same as trick.user.id %}
 										<div class="card-footer">
 											<div class="trick-caption-heading">
-												<div class="delete d-flex justify-content-between" data-id="{{ trick.id }}">
-													<i class="fa-solid fa-trash" style="cursor:pointer"></i>
+												<div class="float-end">
+													<a href="{{ path('edit', {'id': trick.id}) }}">
+														<i class="fa-solid fa-pencil pencil" style="cursor:pointer" title="Modifier cet article"></i>
+													</a>
+												</div>
+												<div class="delete float-end" data-id="{{ trick.id }}">
+													<i class="fa-solid fa-trash" style="cursor:pointer; margin-right:10px"></i>
 												</div>
 											</div>
 										</div>

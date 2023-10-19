@@ -184,7 +184,7 @@ class SnowtricksController extends AbstractController
      * 
      * @return Response An instance of Response with the trick page.
      */
-    #[Route('/snowtricks/{id}', name: 'show')]
+    #[Route('/snowtricks/{id}', name: 'show', methods:['GET'])]
     public function show(Trick $trick): Response
     {
         $user = $this->security->getUser();
