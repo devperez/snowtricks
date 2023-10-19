@@ -56,7 +56,6 @@ class SnowtricksController extends AbstractController
         $tricks = $this->trickRepository->findAll();
         
         return $this->render('snowtricks/index.html.twig', [
-            'controller_name' => 'SnowtricksController',
             'tricks' => $tricks
         ]);
     }
@@ -153,6 +152,10 @@ class SnowtricksController extends AbstractController
                 'trickForm' => $trickForm->createView()
             ]);
         }
+
+        $this->addFlash('danger', 'Un autre trick porte déjà ce nom.');
+
+        return $this->redirectToRoute(('app_snowtricks'));
     }
 
     /**
