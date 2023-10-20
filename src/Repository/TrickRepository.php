@@ -27,7 +27,7 @@ class TrickRepository extends ServiceEntityRepository
     public function findAll(): array
     {
         return $this->createQueryBuilder('t')
-            ->orderBy('t.id', 'ASC')
+            ->orderBy('t.id', 'DESC')
             ->getQuery()
             ->getResult();
     }

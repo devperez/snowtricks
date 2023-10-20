@@ -20,17 +20,22 @@
             {% if user.getPhoto() == '' %}
                 <span>Vous n'avez pas de photo de profil.</span>
             {% else %}
-                <img src="{{ asset(user.photo) }}" alt="Photo de profil" style="width:100px"/>
+                <img src="{{ asset(user.photo) }}" alt="Photo de profil" style="width:100px" class="rounded-circle img-fluid"/>
             {% endif %}
             </div>
         </div>
         <div class="row mt-4">
+        <hr>
             <div class="col-lg-6 col-md-6 col-sm-12">
-                {{ form_start(passwordForm) }}
-                <h5>{{ form_label(passwordForm.password) }}</h5>
-
-                {{ form_row(passwordForm.password) }}
-                {{ form_end(passwordForm) }}
+                <form method="POST" action="{{ path('editPassword') }}">
+                    {{ form_start(passwordForm) }}
+                    <h5>{{ form_label(passwordForm.password) }}</h5>
+                    {{ form_row(passwordForm.password.first) }}
+                    {{ form_row(passwordForm.password.second) }}
+                    {{ form_errors(passwordForm.password) }}
+                    {{ form_end(passwordForm) }}
+                    <button type="submit" class="btn btn-primary mt-4">Valider</button>
+                </form>
             </div>
         </div>
     </div>

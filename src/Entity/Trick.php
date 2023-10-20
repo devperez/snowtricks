@@ -2,15 +2,16 @@
 
 namespace App\Entity;
 
-use App\Repository\TrickRepository;
 use App\Entity\User;
 use App\Entity\Comment;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use App\Enums\TrickCategories;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use App\Repository\TrickRepository;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 
 #[ORM\Entity(repositoryClass: TrickRepository::class)]
@@ -96,9 +97,9 @@ class Trick
         return $this->category;
     }
 
-    public function setCategory(string $category): static
+    public function setCategory(TrickCategories $category): static
     {
-        $this->category = $category;
+        $this->category = $category->toString();
 
         return $this;
     }

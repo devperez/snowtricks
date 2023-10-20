@@ -110,4 +110,12 @@ class AccountController extends AbstractController
         }
         return $this->redirectToRoute('app_account');
     }
+
+    #[Route('/account/editPassword', name:'editPassword', methods:['POST'])]
+    public function editPassword(Request $request): Response
+    {
+        dd($request);
+        //return $this->redirectToRoute('app_account');
+
+    }
 }

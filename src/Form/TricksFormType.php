@@ -3,12 +3,14 @@
 namespace App\Form;
 
 use App\Entity\Trick;
-use App\Form\MediaType;
+use App\Enums\TrickCategories;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\EnumType;
+
 
 class TricksFormType extends AbstractType
 {
@@ -17,7 +19,11 @@ class TricksFormType extends AbstractType
         $builder
             ->add('name', TextType::class, ['attr' => ['class' =>'form-control'], 'label' => 'Nom'])
             ->add('description', TextType::class, ['attr' => ['class' =>'form-control']])
-            ->add('category', TextType::class, ['attr' => ['class' =>'form-control'], 'label' => 'Catégorie'])
+            ->add('category', EnumType::class, [
+                'class' => TrickCategories::class,
+                'mapped' => false,
+                'attr' => ['class' =>'form-control'],
+                'label' => 'Catégorie'])
             ->add('media', FileType::class, [
                 'multiple' => true,
                 'mapped' =>false,

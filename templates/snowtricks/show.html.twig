@@ -88,11 +88,11 @@
 							<p>Aucun commentaire pour ce trick.</p>
 						{% else %}
 							<div class="row">
-								{% for comment in trick.comments %}
+								{% for comment in comments %}
 									<div class="col-md-6 mb-4">
 										<div class="card testimonial-card" style="width: 250px;">
 											<div class="card-up" style="background-color: #9d789b;"></div>
-											<div class="avatar mx-auto bg-white">
+											<div class="avatar mx-auto bg-white mt-2">
 												<img src="{{ comment.user.photo }}" class="rounded-circle img-fluid"/>
 											</div>
 											<div class="card-body">

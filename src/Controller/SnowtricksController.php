@@ -78,15 +78,17 @@ class SnowtricksController extends AbstractController
 
         $emi->beginTransaction();
         $trickForm = $this->createForm(TricksFormType::class);
-
+        //dd($trickForm);
+        // dd($request->request->all());
         try {
-
+            
             $trick = new Trick();
             $user = $this->getUser();
-
+            
             $trickForm->handleRequest($request);
+            //dd($trickForm->get('name')->getData());
 
-            if ($trickForm->isSubmitted() && $trickForm->isValid()) {
+            //if ($trickForm->isSubmitted() && $trickForm->isValid()) {
                 $trick->setUser($user);
                 $trick->setName($trickForm->get('name')->getData());
                 $trick->setDescription($trickForm->get('description')->getData());
@@ -144,7 +146,7 @@ class SnowtricksController extends AbstractController
                 $this->addFlash('success', 'Votre trick a bien été créé !');
 
                 return $this->redirectToRoute('app_snowtricks');
-            }
+            //}
         } catch (\Exception $e) {
             $emi->rollback();
             $this->addFlash('danger', 'Il y a eu un problème lors de la création de votre trick.');
@@ -197,11 +199,17 @@ class SnowtricksController extends AbstractController
         {
             $comment->setUser($user);
         }
+
+        $comments = $trick->getComments()->toArray();
+        usort($comments, function ($a, $b) {
+            return $b->getCreatedAt() <=> $a->getCreatedAt();
+        });
         
         $commentForm = $this->createForm(CommentType::class, $comment);
         return $this->render('snowtricks/show.html.twig', [
             'trick' => $trick,
             'commentForm' => $commentForm->createView(),
+            'comments' => $comments
         ]);
     }
 
