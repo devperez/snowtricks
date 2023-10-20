@@ -8,6 +8,7 @@ use App\Entity\Comment;
 use App\Form\MediaType;
 use App\Form\CommentType;
 use App\Form\TricksFormType;
+use App\Repository\CommentRepository;
 use App\Repository\MediaRepository;
 use App\Repository\TrickRepository;
 use Symfony\Component\Mime\MimeTypes;
@@ -189,8 +190,8 @@ class SnowtricksController extends AbstractController
      * 
      * @return Response An instance of Response with the trick page.
      */
-    #[Route('/snowtricks/{id}', name: 'show', methods:['GET'])]
-    public function show(Trick $trick): Response
+    #[Route('/snowtricks/{id}/{page}', name: 'show', methods:['GET'])]
+    public function show(Trick $trick, CommentRepository $repo, int $page=1): Response
     {
         $user = $this->security->getUser();
         $comment = new Comment();
@@ -199,17 +200,30 @@ class SnowtricksController extends AbstractController
         {
             $comment->setUser($user);
         }
-
-        $comments = $trick->getComments()->toArray();
-        usort($comments, function ($a, $b) {
-            return $b->getCreatedAt() <=> $a->getCreatedAt();
-        });
         
+        // $comments = $repo->getAllComments();
+        $thisPage = $page;
+        
+        $limit = 10;
+        $offset = ($thisPage - 1) * $limit;
+        $commentQuery = $repo->createQueryBuilder('c')
+            ->where('c.trick = :trick')
+            ->setParameter('trick', $trick)
+            ->orderBy('c.created_at', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery();
+        $comments = $commentQuery->getResult();
+        $totalComments = $repo->count(['trick' => $trick]);
+        $maxPages = ceil($totalComments / $limit);
+
         $commentForm = $this->createForm(CommentType::class, $comment);
         return $this->render('snowtricks/show.html.twig', [
             'trick' => $trick,
             'commentForm' => $commentForm->createView(),
-            'comments' => $comments
+            'comments' => $comments,
+            'maxPages' => $maxPages,
+            'thisPage' => $thisPage
         ]);
     }
 

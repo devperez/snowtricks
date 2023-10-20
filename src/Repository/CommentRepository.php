@@ -3,8 +3,9 @@
 namespace App\Repository;
 
 use App\Entity\Comment;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\ORM\Tools\Pagination\Paginator;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 
 /**
  * @extends ServiceEntityRepository<Comment>
@@ -19,6 +20,28 @@ class CommentRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Comment::class);
+    }
+
+        public function getAllComments($currentPage = 1)
+    {
+        $query = $this->createQueryBuilder('c')
+            ->orderBy('c.created_At', 'DESC')
+            ->getQuery();
+
+        $paginator = $this->paginate($query, $currentPage);
+
+        return $paginator;
+    }
+
+    public function paginate($dql, $page = 1, $limit = 10)
+    {
+        $paginator = new Paginator($dql);
+
+        $paginator->getQuery()
+            ->setFirstResult($limit * ($page - 1)) // Offset
+            ->setMaxResults($limit); // Limit
+
+        return $paginator;
     }
 
 //    /**
