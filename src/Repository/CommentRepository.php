@@ -22,27 +22,27 @@ class CommentRepository extends ServiceEntityRepository
         parent::__construct($registry, Comment::class);
     }
 
-        public function getAllComments($currentPage = 1)
-    {
-        $query = $this->createQueryBuilder('c')
-            ->orderBy('c.created_At', 'DESC')
-            ->getQuery();
+    //     public function getAllComments($currentPage = 1)
+    // {
+    //     $query = $this->createQueryBuilder('c')
+    //         ->orderBy('c.created_At', 'DESC')
+    //         ->getQuery();
 
-        $paginator = $this->paginate($query, $currentPage);
+    //     $paginator = $this->paginate($query, $currentPage);
 
-        return $paginator;
-    }
+    //     return $paginator;
+    // }
 
-    public function paginate($dql, $page = 1, $limit = 10)
-    {
-        $paginator = new Paginator($dql);
+    // public function paginate($dql, $page = 1, $limit = 10)
+    // {
+    //     $paginator = new Paginator($dql);
 
-        $paginator->getQuery()
-            ->setFirstResult($limit * ($page - 1)) // Offset
-            ->setMaxResults($limit); // Limit
+    //     $paginator->getQuery()
+    //         ->setFirstResult($limit * ($page - 1)) // Offset
+    //         ->setMaxResults($limit); // Limit
 
-        return $paginator;
-    }
+    //     return $paginator;
+    // }
 
 //    /**
 //     * @return Comment[] Returns an array of Comment objects

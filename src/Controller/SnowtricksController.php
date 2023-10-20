@@ -183,50 +183,7 @@ class SnowtricksController extends AbstractController
     }
 
 
-    /**
-     * Displays the page of a trick.
-     * 
-     * @param Trick $trick The Trick object corresponding to the id in the URL.
-     * 
-     * @return Response An instance of Response with the trick page.
-     */
-    #[Route('/snowtricks/{id}/{page}', name: 'show', methods:['GET'])]
-    public function show(Trick $trick, CommentRepository $repo, int $page=1): Response
-    {
-        $user = $this->security->getUser();
-        $comment = new Comment();
-
-        if($user)
-        {
-            $comment->setUser($user);
-        }
-        
-        // $comments = $repo->getAllComments();
-        $thisPage = $page;
-        
-        $limit = 10;
-        $offset = ($thisPage - 1) * $limit;
-        $commentQuery = $repo->createQueryBuilder('c')
-            ->where('c.trick = :trick')
-            ->setParameter('trick', $trick)
-            ->orderBy('c.created_at', 'DESC')
-            ->setMaxResults($limit)
-            ->setFirstResult($offset)
-            ->getQuery();
-        $comments = $commentQuery->getResult();
-        $totalComments = $repo->count(['trick' => $trick]);
-        $maxPages = ceil($totalComments / $limit);
-
-        $commentForm = $this->createForm(CommentType::class, $comment);
-        return $this->render('snowtricks/show.html.twig', [
-            'trick' => $trick,
-            'commentForm' => $commentForm->createView(),
-            'comments' => $comments,
-            'maxPages' => $maxPages,
-            'thisPage' => $thisPage
-        ]);
-    }
-
+    
     /**
      * Deletes a trick
      * 
@@ -447,4 +404,49 @@ class SnowtricksController extends AbstractController
         $this->addFlash('success', 'Votre trick a bien été modifié !');
         return $this->redirectToRoute('app_snowtricks');
     }
+
+    /**
+     * Displays the page of a trick.
+     * 
+     * @param Trick $trick The Trick object corresponding to the id in the URL.
+     * 
+     * @return Response An instance of Response with the trick page.
+     */
+    #[Route('/snowtricks/{id}/{page}', name: 'show', methods:['GET'])]
+    public function show(Trick $trick, CommentRepository $repo, int $page=1): Response
+    {
+        $user = $this->security->getUser();
+        $comment = new Comment();
+
+        if($user)
+        {
+            $comment->setUser($user);
+        }
+        
+        // $comments = $repo->getAllComments();
+        $thisPage = $page;
+        
+        $limit = 10;
+        $offset = ($thisPage - 1) * $limit;
+        $commentQuery = $repo->createQueryBuilder('c')
+            ->where('c.trick = :trick')
+            ->setParameter('trick', $trick)
+            ->orderBy('c.created_at', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery();
+        $comments = $commentQuery->getResult();
+        $totalComments = $repo->count(['trick' => $trick]);
+        $maxPages = ceil($totalComments / $limit);
+
+        $commentForm = $this->createForm(CommentType::class, $comment);
+        return $this->render('snowtricks/show.html.twig', [
+            'trick' => $trick,
+            'commentForm' => $commentForm->createView(),
+            'comments' => $comments,
+            'maxPages' => $maxPages,
+            'thisPage' => $thisPage
+        ]);
+    }
+
 }

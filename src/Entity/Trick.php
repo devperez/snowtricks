@@ -35,7 +35,7 @@ class Trick
     #[Assert\NotBlank(message: "La description du trick ne peut pas être vide.")]
     private ?string $description = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(type: "string", length: 255)]
     #[Assert\NotBlank(message: "La catégorie du trick ne peut pas être vide.")]
     private ?string $category = null;
 
