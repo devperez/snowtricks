@@ -2,6 +2,17 @@
 
 {% block body %}
 
+{% for label, messages in app.flashes %}
+		{% for message in messages %}
+			<div class="alert alert-{{ label }} alert-dismissible" role="alert">
+				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+				<div class="alert-message">
+					{{ message|raw }}
+				</div>
+			</div>
+		{% endfor %}
+	{% endfor %}
+
 <section class="page-section bg-light">
     <div class="container">
         <h1 class="pb-4">Bienvenue sur votre compte utilisateur !</h1>
@@ -34,10 +45,10 @@
                     {{ form_row(passwordForm.password.second) }}
                     {{ form_errors(passwordForm.password) }}
                     {{ form_end(passwordForm) }}
-                    <button type="submit" class="btn btn-primary mt-4">Valider</button>
                 </form>
             </div>
         </div>
     </div>
 </section>
+
 {% endblock %}

@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class AccountController extends AbstractController
@@ -112,10 +113,30 @@ class AccountController extends AbstractController
     }
 
     #[Route('/account/editPassword', name:'editPassword', methods:['POST'])]
-    public function editPassword(Request $request): Response
+    public function editPassword(Request $request, UserPasswordHasherInterface $passwordEncoder, EntityManagerInterface $emi): Response
     {
-        dd($request);
-        //return $this->redirectToRoute('app_account');
+        if (!$this->security->isGranted('ROLE_USER')) {
+            throw new AccessDeniedException('Accès refusé. Vous n\'avez pas les autorisations nécessaires.');
+        }
 
+        $profilePasswordForm = $this->createForm(ProfilePasswordType::class);
+        $profilePasswordForm->handleRequest($request);
+
+        if ($profilePasswordForm->isSubmitted() && $profilePasswordForm->isValid()) {
+            $user = $this->getUser();
+            $userId = $user->getId();
+            $password = $profilePasswordForm->get('password')['first']->getData();
+            $hashedPassword = $passwordEncoder->hashPassword($user, $password);
+            $user->setPassword($hashedPassword);
+
+            $emi->persist($user);
+            $emi->flush();
+
+            $this->addFlash('success', "Votre mot de passe a été mis à jour avec succès.");
+            return $this->redirectToRoute('app_account');
+        }
+
+        $this->addFlash('danger', "Vos mots de passe doivent correspondre.");
+        return $this->redirectToRoute('app_account');
     }
 }

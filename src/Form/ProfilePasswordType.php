@@ -5,8 +5,8 @@ namespace App\Form;
 use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Validator\Constraints\EqualTo;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 
@@ -16,17 +16,15 @@ class ProfilePasswordType extends AbstractType
     {
         $builder
             ->add('password', RepeatedType::class, [
+                'attr' => ['class' =>'form-control'],
                 'type' => PasswordType::class,
                 'label' => 'Modifiez votre mot de passe :',
                 'invalid_message' => 'Les mots de passe doivent correspondre.',
                 'first_options' => ['label' => 'Mot de passe :'],
                 'second_options' => ['label' => 'Confirmez le mot de passe :'],
-                'constraints' => [
-                    new EqualTo([
-                        'propertyPath' => 'first',
-                        'message' => 'Les mots de passe doivent correspondre.'
-                    ]),
-                ],
+            ])
+            ->add('Valider', SubmitType::class,[
+                'attr'=>['class'=>"btn btn-primary mt-4"]
             ])
         ;
     }
