@@ -15,13 +15,27 @@ class ProfilePasswordType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('password', RepeatedType::class, [
-                'attr' => ['class' =>'form-control'],
+            ->add('password', RepeatedType::class,
+                [
                 'type' => PasswordType::class,
                 'label' => 'Modifiez votre mot de passe :',
                 'invalid_message' => 'Les mots de passe doivent correspondre.',
-                'first_options' => ['label' => 'Mot de passe :'],
-                'second_options' => ['label' => 'Confirmez le mot de passe :'],
+                'first_options' => 
+                    [
+                        'label' => 'Mot de passe :',
+                        'attr' =>
+                        [
+                            'class' => 'form-control',
+                        ]
+                    ],
+                'second_options' => 
+                    [
+                        'label' => 'Confirmez le mot de passe :',
+                        'attr' =>
+                        [
+                            'class' => 'form-control',
+                        ]
+                    ],
             ])
             ->add('Valider', SubmitType::class,[
                 'attr'=>['class'=>"btn btn-primary mt-4"]
