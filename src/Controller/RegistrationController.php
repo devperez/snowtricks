@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Form\RegistrationFormType;
 use App\Repository\UserRepository;
 use App\Security\EmailVerifier;
+use App\Service\SendMailService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,9 +27,12 @@ class RegistrationController extends AbstractController
     }
 
     #[Route('/inscription', name: 'app_register')]
-    public function register(Request $request,
-    UserPasswordHasherInterface $userPasswordHasher,
-    UserRepository $userRepository): Response
+    public function register(
+        Request $request,
+        UserPasswordHasherInterface $userPasswordHasher,
+        UserRepository $userRepository,
+        EntityManagerInterface $emi,
+        SendMailService $mail): Response
     {
         $form = $this->createForm(RegistrationFormType::class);
         $form->handleRequest($request);
@@ -43,17 +48,16 @@ class RegistrationController extends AbstractController
                 )
             );
 
-            $userRepository->save($user);
+            $emi->persist($user);
+            $emi->flush();
 
-            // generate a signed url and email it to the user
-            $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
-                (new TemplatedEmail())
-                    ->from(new Address('advitameternam@gmail.com', 'David'))
-                    ->to($user->getEmail())
-                    ->subject('Please Confirm your Email')
-                    ->htmlTemplate('registration/confirmation_email.html.twig')
+            $mail->send(
+                'no-reply@snowtricks.fr',
+                $user->getEmail(),
+                'Activation de votre compte',
+                'register',
+                compact('user')
             );
-            // do anything else you need here, like send an email
             return $this->redirectToRoute('app_login');
             
         }
