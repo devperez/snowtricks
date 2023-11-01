@@ -46,8 +46,9 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\Column(type: 'boolean')]
     private $isVerified = false;
 
-    #[ORM\Column(type: 'string', length: 100, nullable:true)]
-    private $resetToken;
+    #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
+    private ?PasswordToken $passwordToken = null;
+
 
     public function __construct()
     {
@@ -209,14 +210,20 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         return $this;
     }
 
-    public function getResetToken(): ?string
+    public function getPasswordToken(): ?PasswordToken
     {
-        return $this->resetToken;
+        return $this->passwordToken;
     }
 
-    public function setResetToken(string $resetToken): self
+    public function setPasswordToken(PasswordToken $passwordToken): static
     {
-        $this->resetToken = $resetToken;
+        // set the owning side of the relation if necessary
+        if ($passwordToken->getUser() !== $this) {
+            $passwordToken->setUser($this);
+        }
+
+        $this->passwordToken = $passwordToken;
+
         return $this;
     }
 }

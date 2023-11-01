@@ -2,10 +2,12 @@
 
 namespace App\Controller;
 
+use App\Entity\PasswordToken;
 use App\Entity\User;
 use App\Form\RegistrationType;
 use App\Form\ResetPasswordFormType;
 use App\Form\ResetPasswordRequestFormType;
+use App\Repository\PasswordTokenRepository;
 use App\Repository\UserRepository;
 use App\Service\SendMailService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -48,7 +50,8 @@ class SecurityController extends AbstractController
         UserRepository $userRepository,
         TokenGeneratorInterface $tokenGenerator,
         EntityManagerInterface $emi,
-        SendMailService $mail
+        SendMailService $mail,
+        PasswordTokenRepository $passwordToken
         ): Response
     {
         $form = $this->createForm(ResetPasswordRequestFormType::class);
@@ -63,8 +66,15 @@ class SecurityController extends AbstractController
             {
                 // Generate token and save it to data base
                 $token = $tokenGenerator->generateToken();
-                $user->setResetToken($token);
-                $emi->persist($user);
+                $passwordToken = new PasswordToken;
+                $passwordToken->setToken($token);
+                $passwordToken->setUser($user);
+                // Generate expiry date
+                $currentDateTime = new \DateTime('now', new \DateTimeZone('Europe/Paris'));
+                $expiryDateTime = $currentDateTime->add(new \DateInterval('PT10M'));
+                $passwordToken->setExpiry($expiryDateTime);
+                
+                $emi->persist($passwordToken);
                 $emi->flush();
 
                 // Generate url
@@ -97,38 +107,55 @@ class SecurityController extends AbstractController
         string $token,
         Request $request,
         UserRepository $userRepository,
+        PasswordTokenRepository $passwordToken,
         EntityManagerInterface $emi,
         UserPasswordHasherInterface $userPasswordHasher
         ): Response
     {
         // Check if this token is in data base
-        $user = $userRepository->findOneByResetToken($token);
-        if($user)
+        $userToken = $passwordToken->findOneByToken($token);
+        //dd($userToken);
+        if($userToken)
         {
-            $form = $this->createForm(ResetPasswordFormType::class);
-
-            $form->handleRequest($request);
-            if($form->isSubmitted() && $form->isValid())
+            $isTokenValid = $userToken->isValid($userToken->getExpiry());
+            //dd($isTokenValid);
+            if(!$isTokenValid)
             {
-                // Delete the token
-                $user->setResetToken('');
-                $user->setPassword(
-                    $userPasswordHasher->hashPassword(
-                        $user, $form->get('password')->getData()
-                    )
-                );
-
-                $emi->persist($user);
+                $emi->remove($userToken);
                 $emi->flush();
-
-                $this->addFlash('success', "Mot de passe modifié avec succès.");
+                $this->addflash('danger', "Le lien sur lequel vous avez cliqué n'est plus valide.");
                 return $this->redirectToRoute('app_login');
+            }else{
+                $form = $this->createForm(ResetPasswordFormType::class);
+
+                $form->handleRequest($request);
+                if($form->isSubmitted() && $form->isValid())
+                {
+                    $user = $userToken->getUser();
+                    //dd($user);
+                    $user->setPassword(
+                        $userPasswordHasher->hashPassword(
+                            $user, $form->get('password')->getData()
+                            )
+                        );
+                    $emi->persist($user);
+                    $emi->flush();
+                        
+                    // Delete the token
+                    $emi->remove($userToken);
+                    $emi->flush();
+
+                    $this->addFlash('success', "Mot de passe modifié avec succès.");
+                    return $this->redirectToRoute('app_login');
+                }
+                return $this->render('security/reset_password.html.twig',[
+                    'passForm' => $form->createView(),
+                ]);
             }
-            return $this->render('security/reset_password.html.twig',[
-                'passForm' => $form->createView(),
-            ]);
+            $this->addFlash('danger', 'Token invalide');
+            return $this->redirectToRoute('app_login');
         }
-        $this->addFlash('danger', 'Token invalide');
+        $this->addFlash('danger', 'Une erreur est survenue.');
         return $this->redirectToRoute('app_login');
     }
 }
