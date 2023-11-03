@@ -3,7 +3,7 @@
 <h4>Confirmez votre email !</h4>
 <p>
     Merci de confirmer votre adresse email en cliquant sur le lien ci-dessous : <br><br>
-    <a href="#">Confirmer mon adresse email</a>.
+    <a href=" {{ absolute_url(path('verify_user', {token: token})) }}">Confirmer mon adresse email</a>.
     {# This link will expire in {{ expiresAtMessageKey|trans(expiresAtMessageData, 'VerifyEmailBundle') }}. #}
 </p>
 
