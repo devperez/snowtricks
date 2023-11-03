@@ -72,10 +72,10 @@ class PasswordToken
         
         if ($expiry > $currentDateTime)
         {
-            // Token expired
+            // Token valid
             return true;
         }else{
-            // Token valid
+            // Token expired
             return false;
         }
     }
