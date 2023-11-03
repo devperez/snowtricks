@@ -51,13 +51,16 @@ class RegistrationController extends AbstractController
             $emi->persist($user);
             $emi->flush();
 
+            // Set the header for the jwt
             $header = [
                 'typ' => 'JWT',
                 'alg' => 'HS256'
             ];
+            // Set the payload for the jwt
             $payload = [
                 'user_id' => $user->getId()
             ];
+            // Create jwt
             $token = $jwt->generate($header, $payload, $this->getParameter('app.jwtsecret'));
             
             $mail->send(

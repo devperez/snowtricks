@@ -93,7 +93,7 @@ class SecurityController extends AbstractController
                 $this->addFlash('success', "Un mail vient de vous être envoyé.");
                 return $this->redirectToRoute('app_login');
             }
-            $this->addFlash('danger', "Cette adresse email est inconnue.");
+            $this->addFlash('danger', "Identifiant inconnu.");
             return $this->redirectToRoute('app_login');
         }
         
@@ -152,7 +152,7 @@ class SecurityController extends AbstractController
                     'passForm' => $form->createView(),
                 ]);
             }
-            $this->addFlash('danger', 'Token invalide');
+            $this->addFlash('danger', 'Une erreur est survenue');
             return $this->redirectToRoute('app_login');
         }
         $this->addFlash('danger', 'Une erreur est survenue.');
