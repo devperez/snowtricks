@@ -26,10 +26,6 @@ class SecurityController extends AbstractController
     #[Route(path: '/connexion', name: 'app_login')]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
-        // if ($this->getUser()) {
-        //     return $this->redirectToRoute('target_path');
-        // }
-
         // get the login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();
         // last username entered by the user
@@ -118,7 +114,7 @@ class SecurityController extends AbstractController
         if($userToken)
         {
             $isTokenValid = $userToken->isValid($userToken->getExpiry());
-            //dd($isTokenValid);
+
             if(!$isTokenValid)
             {
                 $emi->remove($userToken);
@@ -132,7 +128,6 @@ class SecurityController extends AbstractController
                 if($form->isSubmitted() && $form->isValid())
                 {
                     $user = $userToken->getUser();
-                    //dd($user);
                     $user->setPassword(
                         $userPasswordHasher->hashPassword(
                             $user, $form->get('password')->getData()

@@ -2,18 +2,19 @@
 
 namespace App\Controller;
 
+use App\Service\JWTService;
+use App\Security\EmailVerifier;
+use App\Service\SendMailService;
 use App\Form\RegistrationFormType;
 use App\Repository\UserRepository;
-use App\Security\EmailVerifier;
-use App\Service\JWTService;
-use App\Service\SendMailService;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 
 class RegistrationController extends AbstractController
@@ -70,6 +71,7 @@ class RegistrationController extends AbstractController
                 'register',
                 compact('user', 'token')
             );
+            $this->addFlash('success', 'Un mail vous a été envoyé.');
             return $this->redirectToRoute('app_login');
             
         }
@@ -80,7 +82,7 @@ class RegistrationController extends AbstractController
     }
 
     #[Route('/verify/{token}', name: 'verify_user')]
-    public function verifyUser(string $token, JWTService $jwt, UserRepository $userRepository, EntityManagerInterface $emi): Response
+    public function verifyUser(tokenStorageInterface $tokenStorage, string $token, JWTService $jwt, UserRepository $userRepository, EntityManagerInterface $emi): Response
     {
         // Check if token is valid, is not expired and has not been modified
         if($jwt->isValid($token) && !$jwt->isExpired($token) && $jwt->check($token, $this->getParameter('app.jwtsecret')))
@@ -91,8 +93,15 @@ class RegistrationController extends AbstractController
             {
                 $user->setIsVerified(true);
                 $emi->flush($user);
-
-                $this->addFlash('success', 'Utilisateur activé');
+                // Check if user is logged in
+                $logged_in_user = $tokenStorage->getToken()->getUser();
+                if($logged_in_user)
+                {
+                    $tokenStorage->setToken(null);
+                    $this->addFlash('success', 'Utilisateur activé.');
+                    return $this->redirectToRoute('app_account');
+                }
+                $this->addFlash('success', 'Utilisateur activé.');
                 return $this->redirectToRoute('app_account');
             }
         }
