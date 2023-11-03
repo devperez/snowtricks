@@ -68,7 +68,7 @@ class PasswordToken
 
     public function isValid(\DateTimeInterface $expiry): bool
     {
-        $currentDateTime = new DateTime('now', new \DateTimeZone('Europe/Paris'));
+        $currentDateTime = new DateTime();
         
         if ($expiry > $currentDateTime)
         {

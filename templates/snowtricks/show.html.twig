@@ -68,7 +68,7 @@
 				<div
 					class="col-md-6">
 					<!-- Formulaire de commentaires -->
-					{% if app.user %}
+					{% if app.user and app.user.isVerified is same as true %}
 						<form method="POST" action="{{ path('commentTrick',{'id':trick.id}) }}">
 							{{ form_start(commentForm) }}
 							{{ form_row(commentForm.comment) }}

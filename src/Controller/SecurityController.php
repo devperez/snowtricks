@@ -70,7 +70,7 @@ class SecurityController extends AbstractController
                 $passwordToken->setToken($token);
                 $passwordToken->setUser($user);
                 // Generate expiry date
-                $currentDateTime = new \DateTime('now', new \DateTimeZone('Europe/Paris'));
+                $currentDateTime = new \DateTime();
                 $expiryDateTime = $currentDateTime->add(new \DateInterval('PT10M'));
                 $passwordToken->setExpiry($expiryDateTime);
                 
@@ -90,10 +90,10 @@ class SecurityController extends AbstractController
                     $context
                 );
 
-                $this->addFlash('success', "Un mail vient de vous être envoyé.");
+                $this->addFlash('success', "Si votre adresse email existe, un mail vous sera envoyé prochainement.");
                 return $this->redirectToRoute('app_login');
             }
-            $this->addFlash('danger', "Identifiant inconnu.");
+            $this->addFlash('danger', "Si votre adresse email existe, un mail vous sera envoyé prochainement.");
             return $this->redirectToRoute('app_login');
         }
         
