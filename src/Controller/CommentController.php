@@ -15,17 +15,26 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
+/**
+ * Controller managing comments related actions.
+ */
 class CommentController extends AbstractController
 {
     /**
      * @var CommentRepository
      */
     private $commentRepository;
+
+    /**
+     * @var Security
+     */
     private $security;
+
     /**
      * CommentController class constructor
      * 
      * @param CommentRepository $commentRepository The comment repository injected through dependency injection.
+     * @param Security $security The security component.
      */
     public function __construct(CommentRepository $commentRepository, Security $security)
     {
@@ -36,11 +45,13 @@ class CommentController extends AbstractController
     /**
      * Saves a comment in the data base
      * 
-     * @param Request $request the content of the comment form
-     * @param EntityManagerInterface $emi The manager that enables to save the data in the data base
-     * @param $id The id of the trick that is being commented
+     * @param Request $request the content of the comment form.
+     * @param EntityManagerInterface $emi The manager that enables to save the data in the data base.
+     * @param $id The id of the trick that is being commented.
      * 
-     * @return Response An instance of response with the trick page
+     * @return Response An instance of response with the trick page.
+     *
+     * @throws AccessDeniedException If the user does not have the required role.
      */
     #[Route('/comment/{id}', name: 'commentTrick')]
     public function commentTrick(Request $request, EntityManagerInterface $emi, int $id): Response
