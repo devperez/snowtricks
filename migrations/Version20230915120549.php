@@ -12,20 +12,39 @@ use Doctrine\Migrations\AbstractMigration;
  */
 final class Version20230915120549 extends AbstractMigration
 {
+    /**
+     * Returns a description of the migration.
+     *
+     * @return string Description of the migration.
+     */
     public function getDescription(): string
     {
         return '';
     }
 
+    /**
+     * Applies the migration changes to the database schema.
+     *
+     * @param Schema $schema The database schema to update.
+     *
+     * @return void
+     */
     public function up(Schema $schema): void
     {
-        // this up() migration is auto-generated, please modify it to your needs
+        // This up() migration is auto-generated, please modify it to your needs.
         $this->addSql('CREATE UNIQUE INDEX UNIQ_D8F0A91E5E237E06 ON trick (name)');
     }
 
+    /**
+     * Reverts the migration changes from the database schema.
+     *
+     * @param Schema $schema The database schema to update.
+     *
+     * @return void
+     */
     public function down(Schema $schema): void
     {
-        // this down() migration is auto-generated, please modify it to your needs
+        // This down() migration is auto-generated, please modify it to your needs.
         $this->addSql('DROP INDEX UNIQ_D8F0A91E5E237E06 ON trick');
     }
 }
