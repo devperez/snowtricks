@@ -19,15 +19,21 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class AccountController extends AbstractController
 {
-/**
+    /**
      * @var UserRepository
      */
     private $userRepository;
+    
+    /**
+     * @var Security
+     */
     private $security;
+    
     /**
      * AccountController class constructor
      * 
      * @param UserRepository $userRepository The user repository injected through dependency injection.
+     * @param Security $security The security component.
      */
     public function __construct(UserRepository $userRepository, Security $security)
     {
@@ -35,6 +41,13 @@ class AccountController extends AbstractController
         $this->security = $security;
     }
 
+    /**
+     * Displays the user's account information.
+     *
+     * @return Response
+     *
+     * @throws AccessDeniedException If the user does not have the required role.
+     */
     #[Route('/account', name: 'app_account')]
     public function index(): Response
     {
@@ -52,6 +65,16 @@ class AccountController extends AbstractController
         ]);
     }
 
+    /**
+     * Handles the upload and update of the user's profile picture.
+     *
+     * @param Request $request The HTTP request.
+     * @param EntityManagerInterface $emi The entity manager.
+     *
+     * @return Response
+     *
+     * @throws AccessDeniedException If the user does not have the required role.
+     */
     #[Route('/account/profilePic', name:'profilePic')]
     public function profilePic(Request $request, EntityManagerInterface $emi): Response
     {
@@ -112,6 +135,17 @@ class AccountController extends AbstractController
         return $this->redirectToRoute('app_account');
     }
 
+    /**
+     * Handles the change of the user's password.
+     *
+     * @param Request $request The HTTP request.
+     * @param UserPasswordHasherInterface $passwordEncoder The password encoder.
+     * @param EntityManagerInterface $emi The entity manager.
+     *
+     * @return Response
+     *
+     * @throws AccessDeniedException If the user does not have the required role.
+     */
     #[Route('/account/editPassword', name:'editPassword', methods:['POST'])]
     public function editPassword(Request $request, UserPasswordHasherInterface $passwordEncoder, EntityManagerInterface $emi): Response
     {
@@ -124,7 +158,6 @@ class AccountController extends AbstractController
 
         if ($profilePasswordForm->isSubmitted() && $profilePasswordForm->isValid()) {
             $user = $this->getUser();
-            $userId = $user->getId();
             $password = $profilePasswordForm->get('password')['first']->getData();
             $hashedPassword = $passwordEncoder->hashPassword($user, $password);
             $user->setPassword($hashedPassword);
