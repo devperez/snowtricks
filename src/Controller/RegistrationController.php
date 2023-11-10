@@ -17,15 +17,38 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 
+/**
+ * Controller managing user registration and email verification.
+ */
 class RegistrationController extends AbstractController
 {
+    /**
+     * @var EmailVerifier
+     */
     private EmailVerifier $emailVerifier;
 
+    /**
+     * RegistrationController constructor.
+     *
+     * @param EmailVerifier $emailVerifier The email verifier service.
+     */
     public function __construct(EmailVerifier $emailVerifier)
     {
         $this->emailVerifier = $emailVerifier;
     }
 
+    /**
+     * Handles user registration.
+     *
+     * @param Request $request The HTTP request.
+     * @param UserPasswordHasherInterface $userPasswordHasher The password hasher service.
+     * @param UserRepository $userRepository The user repository.
+     * @param EntityManagerInterface $emi The entity manager.
+     * @param JWTService $jwt The JWT service.
+     * @param SendMailService $mail The mail service.
+     *
+     * @return Response
+     */
     #[Route('/inscription', name: 'app_register')]
     public function register(
         Request $request,
@@ -39,7 +62,7 @@ class RegistrationController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // encode the plain password
+            // Encode the plain password.
             $user = $form->getData();
 
             $user->setPassword(
@@ -52,12 +75,12 @@ class RegistrationController extends AbstractController
             $emi->persist($user);
             $emi->flush();
 
-            // Set the header for the jwt
+            // Set the header for the jwt.
             $header = [
                 'typ' => 'JWT',
                 'alg' => 'HS256'
             ];
-            // Set the payload for the jwt
+            // Set the payload for the jwt.
             $payload = [
                 'user_id' => $user->getId()
             ];
@@ -81,10 +104,21 @@ class RegistrationController extends AbstractController
         ]);
     }
 
+    /**
+     * Verifies the user's email using a provided token.
+     *
+     * @param TokenStorageInterface $tokenStorage The token storage.
+     * @param string $token The verification token.
+     * @param JWTService $jwt The JWT service.
+     * @param UserRepository $userRepository The user repository.
+     * @param EntityManagerInterface $emi The entity manager.
+     *
+     * @return Response
+     */
     #[Route('/verify/{token}', name: 'verify_user')]
     public function verifyUser(tokenStorageInterface $tokenStorage, string $token, JWTService $jwt, UserRepository $userRepository, EntityManagerInterface $emi): Response
     {
-        // Check if token is valid, is not expired and has not been modified
+        // Check if token is valid, is not expired and has not been modified.
         if($jwt->isValid($token) && !$jwt->isExpired($token) && $jwt->check($token, $this->getParameter('app.jwtsecret')))
         {
             $payload = $jwt->getPayload($token);
@@ -93,7 +127,7 @@ class RegistrationController extends AbstractController
             {
                 $user->setIsVerified(true);
                 $emi->flush($user);
-                // Check if user is logged in
+                // Check if user is logged in.
                 $logged_in_user = $tokenStorage->getToken()->getUser();
                 if($logged_in_user)
                 {
