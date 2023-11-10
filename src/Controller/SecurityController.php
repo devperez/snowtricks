@@ -82,7 +82,7 @@ class SecurityController extends AbstractController
             // Fetch the user by his email.
             $user = $userRepository->findOneByEmail($form->get('email')->getData());
             
-            if($user)
+            if ($user)
             {
                 // Generate token and save it to data base.
                 $token = $tokenGenerator->generateToken();
@@ -164,8 +164,8 @@ class SecurityController extends AbstractController
                     $user->setPassword(
                         $userPasswordHasher->hashPassword(
                             $user, $form->get('password')->getData()
-                            )
-                        );
+                        )
+                    );
                     $emi->persist($user);
                     $emi->flush();
                         

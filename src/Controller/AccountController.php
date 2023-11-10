@@ -101,9 +101,7 @@ class AccountController extends AbstractController
                     {
                         $filePath = $this->getParameter('kernel.project_dir') . '/public' . $picture;
                         unlink($filePath);
-                        //dd($filePath);
                     }
-                    //dd($picture);
                     $destination = $this->getParameter('kernel.project_dir') . '/public/images';
                     $relativePath = '/images';
                     $filesystem = new Filesystem();

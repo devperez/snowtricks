@@ -125,7 +125,7 @@ class Trick
     public function removeComment(Comment $comment): static
     {
         if ($this->comments->removeElement($comment)) {
-            // set the owning side to null (unless already changed)
+            // Set the owning side to null (unless already changed).
             if ($comment->getTrick() === $this) {
                 $comment->setTrick(null);
             }
@@ -155,7 +155,7 @@ class Trick
     public function removeMedium(Media $medium): static
     {
         if ($this->media->removeElement($medium)) {
-            // set the owning side to null (unless already changed)
+            // Set the owning side to null (unless already changed).
             if ($medium->getTrick() === $this) {
                 $medium->setTrick(null);
             }

@@ -21,17 +21,8 @@ class RegistrationFormType extends AbstractType
         $builder
             ->add('name', TextType::class, ['attr' => ['class' =>'form-control']])
             ->add('email', EmailType::class, ['attr' => ['class' =>'form-control']])
-            // ->add('agreeTerms', CheckboxType::class, [
-            //     'mapped' => false,
-            //     'constraints' => [
-            //         new IsTrue([
-            //             'message' => 'You should agree to our terms.',
-            //         ]),
-            //     ],
-            // ])
             ->add('password', PasswordType::class, [
-                // instead of being set onto the object directly,
-                // this is read and encoded in the controller
+                // Instead of being set onto the object directly, this is read and encoded in the controller.
                 'mapped' => false,
                 'attr' => ['class' => 'form-control',
                 'autocomplete' => 'new-password'],
@@ -42,7 +33,7 @@ class RegistrationFormType extends AbstractType
                     new Length([
                         'min' => 6,
                         'minMessage' => 'Your password should be at least {{ limit }} characters',
-                        // max length allowed by Symfony for security reasons
+                        // Max length allowed by Symfony for security reasons.
                         'max' => 4096,
                     ]),
                 ],
