@@ -84,7 +84,7 @@ class RegistrationController extends AbstractController
             $payload = [
                 'user_id' => $user->getId()
             ];
-            // Create jwt
+            // Create jwt.
             $token = $jwt->generate($header, $payload, $this->getParameter('app.jwtsecret'));
             
             $mail->send(
@@ -119,7 +119,7 @@ class RegistrationController extends AbstractController
     public function verifyUser(tokenStorageInterface $tokenStorage, string $token, JWTService $jwt, UserRepository $userRepository, EntityManagerInterface $emi): Response
     {
         // Check if token is valid, is not expired and has not been modified.
-        if($jwt->isValid($token) && !$jwt->isExpired($token) && $jwt->check($token, $this->getParameter('app.jwtsecret')))
+        if ($jwt->isValid($token) && !$jwt->isExpired($token) && $jwt->check($token, $this->getParameter('app.jwtsecret')))
         {
             $payload = $jwt->getPayload($token);
             $user = $userRepository->find($payload['user_id']);
@@ -129,7 +129,7 @@ class RegistrationController extends AbstractController
                 $emi->flush($user);
                 // Check if user is logged in.
                 $logged_in_user = $tokenStorage->getToken()->getUser();
-                if($logged_in_user)
+                if ($logged_in_user)
                 {
                     $tokenStorage->setToken(null);
                     $this->addFlash('success', 'Utilisateur activé.');

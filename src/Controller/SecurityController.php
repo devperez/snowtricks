@@ -144,11 +144,11 @@ class SecurityController extends AbstractController
     {
         // Check if this token is in data base.
         $userToken = $passwordToken->findOneByToken($token);
-        if($userToken)
+        if ($userToken)
         {
             $isTokenValid = $userToken->isValid($userToken->getExpiry());
 
-            if(!$isTokenValid)
+            if (!$isTokenValid)
             {
                 $emi->remove($userToken);
                 $emi->flush();

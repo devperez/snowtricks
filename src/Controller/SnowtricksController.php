@@ -413,7 +413,7 @@ class SnowtricksController extends AbstractController
                 $linkedImages = [];
                 foreach ($trickImages as $trickImage)
                 {
-                    if($trickImage->getType() == 'photo')
+                    if ($trickImage->getType() == 'photo')
                     {
                         $linkedImages[] = $trickImage;
                     }
@@ -476,7 +476,7 @@ class SnowtricksController extends AbstractController
         $user = $this->security->getUser();
         $comment = new Comment();
 
-        if($user)
+        if ($user)
         {
             $comment->setUser($user);
         }
