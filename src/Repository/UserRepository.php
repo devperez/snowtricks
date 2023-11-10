@@ -25,12 +25,12 @@ class UserRepository extends ServiceEntityRepository
     public function save(User $user)
     {
         $entityManager = $this->getEntityManager();
-        try{
+        try {
             $entityManager->beginTransaction();
             $entityManager->persist($user);
             $entityManager->flush();
             $entityManager->commit();
-        }catch(Exception $e) {
+        } catch(Exception $e) {
             $entityManager->rollback();
         }
     }

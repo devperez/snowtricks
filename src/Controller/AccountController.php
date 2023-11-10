@@ -95,7 +95,7 @@ class AccountController extends AbstractController
                 $mime = $mimeTypes->guessMimeType($file->getPathname());
 
                 if (str_starts_with($mime, 'image/')) {
-                    // Check if user already has a profile picture and if yes, delete it
+                    // Check if user already has a profile picture and if yes, delete it.
                     $picture = $user->getPhoto();
                     if ($picture)
                     {

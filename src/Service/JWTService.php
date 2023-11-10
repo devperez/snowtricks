@@ -15,10 +15,10 @@ class JWTService
      * @return string
      */
 
-    // Creation of the token
+    // Creation of the token.
     public function generate(array $header, array $payload, string $secret, int $validity = 10800): string
     {
-        if($validity > 0)
+        if ($validity > 0)
         {
             $now = new DateTimeImmutable();
             $exp = $now->getTimeStamp() + $validity;
@@ -27,15 +27,15 @@ class JWTService
             $payload['exp'] = $exp;
         }
 
-        // Encode base64
+        // Encode base64.
         $base64Header = base64_encode(json_encode($header));
         $base64Payload = base64_encode(json_encode($payload));
 
-        // Let's clean the base64
+        // Let's clean the base64.
         $base64Header = str_replace(['+', '/', '='], ['-','_', ''], $base64Header);
         $base64Payload = str_replace(['+', '/', '='], ['-','_', ''], $base64Payload);
 
-        // Set the signature
+        // Set the signature.
         $secret = base64_encode($secret);
         $signature = hash_hmac('sha256', $base64Header . '.' . $base64Payload, $secret, true);
 

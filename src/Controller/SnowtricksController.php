@@ -273,7 +273,7 @@ class SnowtricksController extends AbstractController
             $emi->flush();
             $emi->commit();
 
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
             $emi->rollback();
             $this->addFlash('danger', 'Il y a eu un problème lors de la modification de votre trick.');
             return $this->redirectToRoute('app_snowtricks');

@@ -96,7 +96,6 @@ class RegistrationController extends AbstractController
             );
             $this->addFlash('success', 'Un mail vous a été envoyé.');
             return $this->redirectToRoute('app_login');
-            
         }
 
         return $this->render('registration/register.html.twig', [
