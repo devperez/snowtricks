@@ -27,18 +27,8 @@ class TrickRepository extends ServiceEntityRepository
     public function findAll(): array
     {
         return $this->createQueryBuilder('t')
-            ->orderBy('t.id', 'ASC')
+            ->orderBy('t.id', 'DESC')
             ->getQuery()
             ->getResult();
     }
-
-//    public function findOneBySomeField($value): ?Trick
-//    {
-//        return $this->createQueryBuilder('t')
-//            ->andWhere('t.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
 }

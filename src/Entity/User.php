@@ -12,7 +12,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
+#[UniqueEntity(fields: ['email'], message: 'Un compte existe déjà avec cet email')]
 class User implements PasswordAuthenticatedUserInterface, UserInterface
 {
     #[ORM\Id]
@@ -24,6 +24,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     private ?string $name = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\EqualTo(propertyPath : "password", message : "Les mots de passe doivent correspondre.")]
     private ?string $password = null;
 
     #[ORM\Column(length: 255)]
@@ -44,6 +45,10 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
 
     #[ORM\Column(type: 'boolean')]
     private $isVerified = false;
+
+    #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
+    private ?PasswordToken $passwordToken = null;
+
 
     public function __construct()
     {
@@ -193,14 +198,31 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         return $this->email;
     }
 
-    public function isVerified(): bool
+    public function getIsVerified(): bool
     {
         return $this->isVerified;
     }
 
-    public function setIsVerified(bool $isVerified): static
+    public function setIsVerified(bool $isVerified): self
     {
         $this->isVerified = $isVerified;
+
+        return $this;
+    }
+
+    public function getPasswordToken(): ?PasswordToken
+    {
+        return $this->passwordToken;
+    }
+
+    public function setPasswordToken(PasswordToken $passwordToken): static
+    {
+        // set the owning side of the relation if necessary
+        if ($passwordToken->getUser() !== $this) {
+            $passwordToken->setUser($this);
+        }
+
+        $this->passwordToken = $passwordToken;
 
         return $this;
     }

@@ -2,15 +2,20 @@
 
 namespace App\Entity;
 
-use App\Repository\TrickRepository;
 use App\Entity\User;
 use App\Entity\Comment;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use App\Enums\TrickCategories;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\TrickRepository;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
 
 #[ORM\Entity(repositoryClass: TrickRepository::class)]
+#[UniqueEntity(fields:['name'], message:"Le nom de ce trick est déjà utilisé.")]
 class Trick
 {
     #[ORM\Id]
@@ -22,19 +27,22 @@ class Trick
     #[ORM\JoinColumn(nullable: false)]
     private ?user $user = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, unique: true)]
+    #[Assert\NotBlank(message: "Le nom du trick ne peut pas être vide.")]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: "La description du trick ne peut pas être vide.")]
     private ?string $description = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(type: "string", length: 255)]
+    #[Assert\NotBlank(message: "La catégorie du trick ne peut pas être vide.")]
     private ?string $category = null;
 
-    #[ORM\OneToMany(mappedBy: 'trick', targetEntity: Comment::class)]
+    #[ORM\OneToMany(mappedBy: 'trick', cascade:["remove"], targetEntity: Comment::class)]
     private Collection $comments;
 
-    #[ORM\OneToMany(mappedBy: 'trick', targetEntity: Media::class)]
+    #[ORM\OneToMany(mappedBy: 'trick', cascade:["remove"], targetEntity: Media::class)]
     private Collection $media;
 
     public function __construct()
@@ -89,9 +97,9 @@ class Trick
         return $this->category;
     }
 
-    public function setCategory(string $category): static
+    public function setCategory(TrickCategories $category): static
     {
-        $this->category = $category;
+        $this->category = $category->toString();
 
         return $this;
     }
@@ -117,7 +125,7 @@ class Trick
     public function removeComment(Comment $comment): static
     {
         if ($this->comments->removeElement($comment)) {
-            // set the owning side to null (unless already changed)
+            // Set the owning side to null (unless already changed).
             if ($comment->getTrick() === $this) {
                 $comment->setTrick(null);
             }
@@ -147,12 +155,24 @@ class Trick
     public function removeMedium(Media $medium): static
     {
         if ($this->media->removeElement($medium)) {
-            // set the owning side to null (unless already changed)
+            // Set the owning side to null (unless already changed).
             if ($medium->getTrick() === $this) {
                 $medium->setTrick(null);
             }
         }
 
         return $this;
+    }
+
+    private $video;
+
+    public function getVideo()
+    {
+        return $this->video;
+    }
+
+    public function setVideo($video)
+    {
+        $this->video = $video;
     }
 }

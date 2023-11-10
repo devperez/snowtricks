@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+{% for label, messages in app.flashes %}
+    {% for message in messages %}
+        <div class="alert alert-{{ label }} alert-dismissible" role="alert">
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <div class="alert-message">
+                {{ message|raw }}
+            </div>
+        </div>
+    {% endfor %}
+{% endfor %}
+
+<section class="page-section bg-light">
+    <div class="container">
+        <h1 class="pb-4">Bienvenue sur votre compte utilisateur !</h1>
+        <div class="row mb-4">
+            <div class="col-lg-6 col-md-6 col-sm-12">
+   				<form method="POST" action="{{ path('profilePic') }}" enctype="multipart/form-data">
+                    {{ form_start(form) }}
+                    <h5>{{ form_label(form.photo) }}</h5>
+                    {{ form_row(form.photo, {'label': false}) }}
+                    	<button type="submit" class="btn btn-primary mt-4">Valider</button>
+                    {{ form_end(form) }}
+                </form>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-12">
+            <div>Votre photo de profil actuelle :</div>
+            {% if user.getPhoto() == '' %}
+                <span>Vous n'avez pas de photo de profil.</span>
+            {% else %}
+                <img src="{{ asset(user.photo) }}" alt="Photo de profil" style="width:100px" class="rounded-circle img-fluid"/>
+            {% endif %}
+            </div>
+        </div>
+        <div class="row mt-4">
+        <hr>
+            <div class="col-lg-6 col-md-6 col-sm-12">
+                <form method="POST" action="{{ path('editPassword') }}">
+                    {{ form_start(passwordForm) }}
+                    <h5>{{ form_label(passwordForm.password) }}</h5>
+                    {{ form_row(passwordForm.password.first) }}
+                    {{ form_row(passwordForm.password.second) }}
+                    {{ form_errors(passwordForm.password) }}
+                    {{ form_end(passwordForm) }}
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

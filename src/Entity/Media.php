@@ -20,7 +20,7 @@ class Media
     #[ORM\Column(length: 255)]
     private ?string $type = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 500)]
     private ?string $media = null;
 
     public function getId(): ?int
