@@ -9,7 +9,7 @@ To run this project, you will need to add the following environment variables to
 
 `MAILER_DSN=smtp://mailhog:1025`
 
-`JWT_SECRET='S3cr3tC0D3`
+`JWT_SECRET='S3cr3tC0D3'`
 
 
 ## Deployment
