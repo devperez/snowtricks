@@ -12,7 +12,7 @@ To run this project, you will need to add the following environment variables to
 `JWT_SECRET='S3cr3tC0D3'`
 
 
-## Deployment
+## Installation
 
 Although it wasn't a requirement, this project was developed using a docker environment.
 
@@ -23,17 +23,23 @@ git clone https://github.com/devperez/snowtricks.git
 ```
 2. If Docker is not installed on your machine, get Docker [here](https://docs.docker.com/get-docker/).
 
-3.  Then, build the docker image :
+3.  Then, run the docker image :
 
 ```bash
-    docker build -t snowtrick .
+    docker compose -d
 ```
-This image contains mailhog, nginx, phpmyadmin, php and mysql.
-
-4. Next, run the image :
+4. Once the project is running :
 ```bash
-    docker run -p 8888:80 snowtrick
+    npm run dev
 ```
+
+5. Finally, run the fixtures :
+```bash
+    php bin/console doctrine:fixtures:load
+```
+Now the project should be running fine.
+Here are some more pieces of relevant information:
+
 You will need to access the mailhog interface to check your emails and this can be done on port 8025 :
 http://localhost:8025
 
@@ -48,4 +54,4 @@ Mot de passe : password
 
 You can create new accounts but if you want to use one that already exists, you have to use 123456 as a password.
 
-You're all set, have fun !
+Enjoy!
