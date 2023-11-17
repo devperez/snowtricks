@@ -127,18 +127,21 @@ class RegistrationController extends AbstractController
                 $user->setIsVerified(true);
                 $emi->flush($user);
                 // Check if user is logged in.
-                $logged_in_user = $tokenStorage->getToken()->getUser();
-                if ($logged_in_user)
+                $token = $tokenStorage->getToken();
+                if ($token)
                 {
-                    $tokenStorage->setToken(null);
-                    $this->addFlash('success', 'Utilisateur activé.');
-                    return $this->redirectToRoute('app_account');
+                    $logged_in_user = $token->getUser();
+                    if ($logged_in_user)
+                    {
+                        $tokenStorage->setToken(null);
+                        $this->addFlash('success', 'Utilisateur activé.');
+                        return $this->redirectToRoute('app_account');
+                    }
                 }
                 $this->addFlash('success', 'Utilisateur activé.');
                 return $this->redirectToRoute('app_account');
             }
         }
-
         $this->addFlash('danger', 'Une erreur est survenue.');
         return $this->redirectToRoute('app_login');
     }
