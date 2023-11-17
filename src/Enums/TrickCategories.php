@@ -3,15 +3,12 @@
 namespace App\Enums;
 
 enum TrickCategories: string {
-    case Mute = 'Mute';
-    case Sad = 'Sad';
-    case Indy = 'Indy';
-    case Stalefish = 'Stalefish';
-    case TailGrab = 'Tail Grab';
-    case NoseGrab = 'Nose Grab';
-    case Japan = 'Japan';
-    case SeatBelt = 'Seat Belt';
-    case TruckDriver = 'Truck Driver';
+    case Grab = 'Grab';
+    case Rotation = 'Rotation';
+    case Flip = 'Flip';
+    case Slide = 'Slide';
+    case OneFoot = 'One Foot';
+    case OldSchool = 'Old School';
 
     public function toString(): string {
         return $this->value;
