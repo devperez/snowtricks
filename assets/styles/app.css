@@ -754,7 +754,7 @@ progress {
 
 .row>* {
     flex-shrink: 0;
-    width: 100%;
+    /* width: 100%; */
     max-width: 100%;
     padding-right: calc(var(--bs-gutter-x) * 0.5);
     padding-left: calc(var(--bs-gutter-x) * 0.5);
@@ -13030,6 +13030,21 @@ header.masthead .masthead-heading {
     gap: 10px;
 }
 
+.video-responsive {
+    width: 100%;
+    padding-bottom: 56.25%;
+    height:0;
+}        
+
+.video-responsive iframe {
+    left:0; 
+    top:0; 
+    height:100%;
+    width:100%;
+    position:absolute;
+}
+
+
 .grid-video {
     max-width: 100%;
 }
@@ -13039,8 +13054,8 @@ header.masthead .masthead-heading {
 }
 
 .card-img-top {
-    width: 20vw;
-    height: 15vw;
+    /* width: 20vw; */
+    /* height: 15vw; */
     object-fit: cover;
 }
 

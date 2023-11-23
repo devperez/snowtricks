@@ -113,7 +113,7 @@ class SecurityController extends AbstractController
                 $this->addFlash('success', "Si votre adresse email existe, un mail vous sera envoyé prochainement.");
                 return $this->redirectToRoute('app_login');
             }
-            $this->addFlash('danger', "Si votre adresse email existe, un mail vous sera envoyé prochainement.");
+            $this->addFlash('success', "Si votre adresse email existe, un mail vous sera envoyé prochainement.");
             return $this->redirectToRoute('app_login');
         }
         
