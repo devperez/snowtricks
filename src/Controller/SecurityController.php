@@ -180,9 +180,13 @@ class SecurityController extends AbstractController
                     'passForm' => $form->createView(),
                 ]);
             }
+            $emi->remove($userToken);
+            $emi->flush();
             $this->addFlash('danger', 'Une erreur est survenue');
             return $this->redirectToRoute('app_login');
         }
+        $emi->remove($userToken);
+        $emi->flush();
         $this->addFlash('danger', 'Une erreur est survenue.');
         return $this->redirectToRoute('app_login');
     }
